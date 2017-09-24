@@ -1,4 +1,4 @@
-package cpw.mods.accesstransformers;
+package cpw.mods.accesstransformer;
 
 import com.demonwav.primeiron.*;
 import org.antlr.v4.runtime.*;
@@ -13,7 +13,7 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class ForgeATTest {
+public class ForgeATBaseParserTest {
     @Test
     public void testLoadingForgeAT() throws IOException, URISyntaxException {
         final Path path = Paths.get(getClass().getClassLoader().getResource("forge_at.cfg").toURI());
