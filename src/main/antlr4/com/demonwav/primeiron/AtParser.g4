@@ -2,7 +2,7 @@ parser grammar AtParser;
 
 options { tokenVocab=AtLexer; }
 
-file : (line CRLF)* line? EOF;
+file : (line CRLF)* line? EOF ;
 
 line : entry? WS? COMMENT? ;
 
