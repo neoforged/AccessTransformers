@@ -246,3 +246,6 @@ flycheck_*.el
 # directory configuration
 .dir-locals.el
 *.tokens
+/.idea/
+/src/generated-sources/
+/repo/

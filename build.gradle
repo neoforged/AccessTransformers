@@ -1,0 +1,109 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        // The following is only necessary if you want to use SNAPSHOT releases.
+        // maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+    }
+    dependencies {
+        classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.0'
+    }
+}
+
+
+apply plugin: 'org.junit.platform.gradle.plugin'
+apply plugin: 'maven'
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'jacoco'
+
+group 'cpw.mods'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+jacoco {
+    toolVersion = "0.7.6.201602180812"
+}
+
+ext.antlr = [
+        grammarpackage: "com.demonwav.primeiron",
+        antlrSource: 'src/main/antlr4',
+        destinationDir: "src/generated-sources/java"
+]
+
+configurations {
+    antlr4 {
+        description = "ANTLR4"
+    }
+}
+
+task antlrOutputDir {
+    mkdir antlr.destinationDir
+}
+
+task generateGrammarSource(dependsOn: antlrOutputDir, type: JavaExec)
+
+sourceSets {
+    antlr4 {
+        java {
+            srcDir {
+                antlr.destinationDir
+            }
+        }
+    }
+}
+
+compileJava {
+    dependsOn generateGrammarSource
+    source antlr.destinationDir
+}
+
+clean {
+    delete antlr.destinationDir
+}
+
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile "org.junit.jupiter:junit-jupiter-api:5.0.0"
+    testCompile(group: 'org.powermock', name: 'powermock-core', version: '1.6.6')
+    testRuntime "org.junit.jupiter:junit-jupiter-engine:5.0.0"
+    compile 'org.antlr:antlr4-runtime:4.7'
+    antlr4 'org.antlr:antlr4:4.7'
+}
+
+
+def repoDir = new File(projectDir, "repo")
+repoDir.mkdirs()
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: "file://" + repoDir.absolutePath)
+
+            pom.project {
+                description 'Access Transformer library'
+                url 'http://github.com/cpw/accesstransformer'
+            }
+        }
+    }
+}
+
+clean.doLast {
+    repoDir.deleteDir()
+}
+
+
+generateGrammarSource {
+    description = 'Generates Java sources from ANTLR4 grammars.'
+    inputs.dir file(antlr.antlrSource)
+    outputs.dir file(antlr.destinationDir)
+    def grammars = fileTree(antlr.antlrSource).include('**/*.g4')
+    main = 'org.antlr.v4.Tool'
+    classpath = configurations.antlr4
+    def pkg = antlr.grammarpackage.replaceAll("\\.", "/")
+    args = ["-o", "${antlr.destinationDir}/${pkg}", "-visitor", "-package", antlr.grammarpackage, grammars.files].flatten()
+}
