@@ -2,9 +2,10 @@ parser grammar AtParser;
 
 options { tokenVocab=AtLexer; }
 
-file : line* EOF ;
+file : (line CRLF)* line? EOF;
 
-line : entry? WS? COMMENT? CRLF ;
+line : entry? WS? COMMENT? ;
+line_end : EOF | CRLF ;
 
 entry : keyword WS class_name (WS line_value)? ;
 line_value : function | field_name | asterisk ;
