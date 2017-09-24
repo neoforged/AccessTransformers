@@ -14,6 +14,6 @@ public class AccessTransformerLoadTest {
         final AccessTransformerList atLoader = new AccessTransformerList();
         atLoader.loadFromResource("forge_at.cfg");
         final Map<String, List<AccessTransformer>> accessTransformers = atLoader.getAccessTransformers();
-        accessTransformers.forEach((k,v) -> System.out.printf("Got %d ATs for %s:\n\t%s\n", v.size(), k, v.stream().map(Object::toString).collect(Collectors.joining(",\n\t"))));
+        accessTransformers.forEach((k,v) -> System.out.printf("Got %d ATs for %s:\n\t%s\n", v.size(), k, v.stream().map(Object::toString).collect(Collectors.joining("\n\t"))));
     }
 }

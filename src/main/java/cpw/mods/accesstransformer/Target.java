@@ -1,6 +1,10 @@
 package cpw.mods.accesstransformer;
 
+import org.objectweb.asm.tree.*;
+
 import java.util.*;
+import java.util.concurrent.*;
+import java.util.function.*;
 
 public class Target {
     private final String className;
@@ -10,7 +14,7 @@ public class Target {
         this.className = className;
     }
 
-    protected TargetType getType() {
+    public TargetType getType() {
         return TargetType.CLASS;
     }
 
@@ -21,5 +25,25 @@ public class Target {
     @Override
     public String toString() {
         return Objects.toString(className) + " " + Objects.toString(getType());
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (!(obj instanceof Target)) return false;
+        return Objects.equals(className, ((Target)obj).className) &&
+               Objects.equals(getType(), ((Target)obj).getType());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getClassName(), getType(), "CLASS");
+    }
+
+
+    public <T> boolean findAndApplyToNode(ClassNode node, Function<T, Void> action) {
+        @SuppressWarnings("unchecked")
+        final Function<ClassNode, Void> action1 = (Function<ClassNode, Void>) action;
+        action1.apply(node);
+        return true;
     }
 }

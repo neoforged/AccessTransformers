@@ -47,10 +47,20 @@ public class AccessTransformerList {
 
     public Map<String, List<AccessTransformer>> getAccessTransformers() {
         final HashMap<String, List<AccessTransformer>> collect = accessTransformers.entrySet().stream().collect(Collectors.groupingBy(
-                e -> e.getValue().getTarget().getClassName(),
+                (Map.Entry<Target, AccessTransformer> e) -> e.getValue().getTarget().getClassName(),
                 HashMap::new,
-                Collectors.mapping(e -> e.getValue(), Collectors.toList()))
+                Collectors.mapping(Map.Entry::getValue, Collectors.toList()))
         );
         return collect;
+    }
+
+    public boolean containsClassTarget(final String name) {
+        return accessTransformers.keySet().stream().anyMatch(k->name.equals(k.getClassName()));
+    }
+
+    public Map<TargetType, List<AccessTransformer>> getTransformersForTarget(final String name) {
+        return accessTransformers.entrySet().stream()
+                .filter(e -> name.equals(e.getKey().getClassName()))
+                .map(Map.Entry::getValue).collect(Collectors.groupingBy(o->o.getTarget().getType(), HashMap::new, Collectors.toList()));
     }
 }

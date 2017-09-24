@@ -18,12 +18,29 @@ public class MethodTarget extends Target {
     }
 
     @Override
-    protected TargetType getType() {
+    public TargetType getType() {
         return TargetType.METHOD;
     }
 
     @Override
     public String toString() {
-        return super.toString() + " " + Objects.toString(methodName);
+        return super.toString() + " "
+                + Objects.toString(methodName) + "("
+                + Objects.toString(arguments.stream().map(Object::toString).collect(Collectors.joining()))+")"
+                +Objects.toString(returnType);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (!(obj instanceof MethodTarget)) return false;
+        return super.equals(obj) &&
+                Objects.equals(methodName, ((MethodTarget)obj).methodName) &&
+                Objects.deepEquals(arguments, ((MethodTarget)obj).arguments) &&
+                Objects.equals(returnType, ((MethodTarget)obj).returnType);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getClassName(), getType(), methodName);
     }
 }
