@@ -3,4 +3,4 @@ A utility library for parsing and managing Access Transformers - allowing runtim
 
 The format specification is in [FML Access Transformer specification](FMLAT.md).
 
-Many thanks to DemonWav for invaluable assistance generating the antlr4 parser and lexer.
+Many thanks to DemonWav for invaluable assistance generating the antlr4 parser and lexer, based on his excellent work in the Minecraft Dev plugin for intellij [here](https://github.com/minecraft-dev/MinecraftDev/tree/7605e46aa8877dcd89c98ab30909bae82b1e8a2b/src/main/grammars)
