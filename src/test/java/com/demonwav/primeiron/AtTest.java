@@ -9,7 +9,8 @@ class AtTest {
 
     @Test
     void test() {
-        final CodePointCharStream stream = CharStreams.fromString("public net.minecraft.world.World func_175663_a(ILjava/lang/String;Lcom/mojang/authlib/GameProfile;IISLjava/lang/String;Z)Lnet/minecraft/util/math/BlockPos; # isAreaLoaded\n");
+//        final CodePointCharStream stream = CharStreams.fromString("public net.minecraft.world.World func_175663_a(ILjava/lang/String;Lcom/mojang/authlib/GameProfile;IISLjava/lang/String;Z)Lnet/minecraft/util/math/BlockPos; # isAreaLoaded\n");
+        final CodePointCharStream stream = CharStreams.fromString("\n");
         final AtLexer lexer = new AtLexer(stream);
         final AtParser parser = new AtParser(new CommonTokenStream(lexer));
         parser.file();
