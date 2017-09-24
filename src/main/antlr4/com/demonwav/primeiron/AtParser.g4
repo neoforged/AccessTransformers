@@ -8,9 +8,10 @@ line : entry? WS? COMMENT? ;
 line_end : EOF | CRLF ;
 
 entry : keyword WS class_name (WS line_value)? ;
-line_value : function | field_name | asterisk ;
+line_value : function | field_name | wildcard_method | wildcard_field ;
 
-asterisk : ASTERISK ;
+wildcard_method : ASTERISK_METHOD ;
+wildcard_field : ASTERISK ;
 keyword : KEYWORD ;
 class_name : CLASS_NAME ;
 field_name : NAME_ELEMENT ;

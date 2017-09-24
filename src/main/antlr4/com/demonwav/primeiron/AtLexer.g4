@@ -1,6 +1,7 @@
 lexer grammar AtLexer;
 
-ASTERISK : '*' | '*()' ;
+ASTERISK : '*' ;
+ASTERISK_METHOD : '*()' ;
 OPEN_PARAM : '(' -> pushMode(ARGS) ;
 COMMENT : '#' ~('\r' | '\n')* ;
 
