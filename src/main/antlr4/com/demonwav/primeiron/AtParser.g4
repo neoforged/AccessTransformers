@@ -5,7 +5,6 @@ options { tokenVocab=AtLexer; }
 file : (line CRLF)* line? EOF;
 
 line : entry? WS? COMMENT? ;
-line_end : EOF | CRLF ;
 
 entry : keyword WS class_name (WS line_value)? ;
 line_value : function | field_name | wildcard_method | wildcard_field ;
