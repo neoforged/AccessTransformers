@@ -79,17 +79,56 @@ dependencies {
 }
 
 
-def repoDir = new File(projectDir, "repo")
-repoDir.mkdirs()
-
 uploadArchives {
-    repositories {
-        mavenDeployer {
+    repositories.mavenDeployer {
+        if (project.hasProperty('forgeMavenPassword'))
+        {
+            repository(url: "http://files.minecraftforge.net/maven/manage/upload") {
+                authentication(userName: project.getProperty('forgeMavenUser'), password: project.getProperty('forgeMavenPassword'))
+            }
+        } else {
             repository(url: "file://" + repoDir.absolutePath)
+        }
+        pom {
+            groupId = project.group
+            artifactId = project.archivesBaseName
+            project {
+                name project.archivesBaseName
+                packaging 'jar'
+                description 'Access Transformers library'
+                url 'https://github.com/cpw/accesstransformers'
 
-            pom.project {
-                description 'Access Transformer library'
-                url 'http://github.com/cpw/accesstransformer'
+                scm {
+                    url 'https://github.com/cpw/accesstransformers'
+                    connection 'scm:git:git://github.com/cpw/accesstransformers.git'
+                    developerConnection 'scm:git:git@github.com:cpw/accesstransformers.git'
+                }
+
+                issueManagement {
+                    system 'github'
+                    url 'https://github.com/cpw/accesstransformers/issues'
+                }
+
+                licenses {
+                    license {
+                        name 'MIT'
+                        url 'https://opensource.org/licenses/MIT'
+                        distribution 'repo'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'cpw'
+                        name 'cpw'
+                        roles { role 'developer' }
+                    }
+                    developer {
+                        id 'DemonWav'
+                        name 'DemonWav'
+                        roles { role 'developer' }
+                    }
+                }
             }
         }
     }
