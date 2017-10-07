@@ -20,6 +20,7 @@ group 'cpw.mods'
 version '1.0-SNAPSHOT'
 
 sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 jacoco {
     toolVersion = "0.7.6.201602180812"
@@ -44,6 +45,7 @@ task antlrOutputDir {
 task generateGrammarSource(dependsOn: antlrOutputDir, type: JavaExec)
 
 sourceSets {
+    mlservice
     antlr4 {
         java {
             srcDir {
@@ -62,9 +64,23 @@ clean {
     delete antlr.destinationDir
 }
 
+task mlserviceJar(type: Jar) {
+    classifier = 'service'
+    from sourceSets.mlservice.output
+}
+
+artifacts {
+    mlserviceJar
+}
+
+build.dependsOn mlserviceJar
 
 repositories {
     mavenCentral()
+    maven {
+        name = "forge"
+        url = "http://files.minecraftforge.net/maven"
+    }
 }
 
 dependencies {
@@ -75,6 +91,7 @@ dependencies {
     compile 'org.antlr:antlr4-runtime:4.7'
     compile 'org.ow2.asm:asm-debug-all:5.2'
     compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.9.0'
+    compile 'cpw.mods:modlauncher:0.1-SNAPSHOT:api'
     antlr4 'org.antlr:antlr4:4.7'
 }
 
@@ -87,7 +104,7 @@ uploadArchives {
                 authentication(userName: project.getProperty('forgeMavenUser'), password: project.getProperty('forgeMavenPassword'))
             }
         } else {
-            repository(url: "file://" + repoDir.absolutePath)
+            repository(url: 'file://localhost/' + project.file('repo').getAbsolutePath())
         }
         pom {
             groupId = project.group
@@ -133,11 +150,6 @@ uploadArchives {
         }
     }
 }
-
-clean.doLast {
-    repoDir.deleteDir()
-}
-
 
 generateGrammarSource {
     description = 'Generates Java sources from ANTLR4 grammars.'
