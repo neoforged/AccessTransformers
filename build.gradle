@@ -66,11 +66,20 @@ clean {
 
 task mlserviceJar(type: Jar) {
     classifier = 'service'
+    from sourceSets.main.output
     from sourceSets.mlservice.output
 }
 
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+    from sourceSets.mlservice.allSource
+}
+
 artifacts {
-    mlserviceJar
+    archives jar
+    archives sourcesJar
+    archives mlserviceJar
 }
 
 build.dependsOn mlserviceJar
@@ -92,6 +101,7 @@ dependencies {
     compile 'org.ow2.asm:asm-debug-all:5.2'
     compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.9.0'
     compile 'cpw.mods:modlauncher:0.1-SNAPSHOT:api'
+    mlserviceCompile 'cpw.mods:modlauncher:0.1-SNAPSHOT:api'
     antlr4 'org.antlr:antlr4:4.7'
 }
 
