@@ -15,8 +15,12 @@ public class AccessTransformerList {
     private static final Logger LOG = LogManager.getLogger();
     private final Map<Target, AccessTransformer> accessTransformers = new HashMap<>();
 
-    public void loadFromResource(String resourceName) throws URISyntaxException, IOException {
+    public void loadFromResource(final String resourceName) throws URISyntaxException, IOException {
         final Path path = Paths.get(getClass().getClassLoader().getResource(resourceName).toURI());
+        loadFromPath(path, resourceName);
+    }
+
+    public void loadFromPath(final Path path, final String resourceName) throws IOException {
         final CharStream stream = CharStreams.fromPath(path);
         final AtLexer lexer = new AtLexer(stream);
         final CommonTokenStream tokenStream = new CommonTokenStream(lexer);
@@ -46,12 +50,11 @@ public class AccessTransformerList {
 
 
     public Map<String, List<AccessTransformer>> getAccessTransformers() {
-        final HashMap<String, List<AccessTransformer>> collect = accessTransformers.entrySet().stream().collect(Collectors.groupingBy(
+        return accessTransformers.entrySet().stream().collect(Collectors.groupingBy(
                 (Map.Entry<Target, AccessTransformer> e) -> e.getValue().getTarget().getClassName(),
                 HashMap::new,
                 Collectors.mapping(Map.Entry::getValue, Collectors.toList()))
         );
-        return collect;
     }
 
     public boolean containsClassTarget(final String name) {

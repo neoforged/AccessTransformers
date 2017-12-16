@@ -5,11 +5,13 @@ import cpw.mods.accesstransformer.parser.*;
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.*;
 
+import java.io.*;
+import java.nio.file.*;
 import java.util.*;
 
 import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
 
-public enum ClassTransformer {
+public enum AccessTransformerEngine {
     INSTANCE;
 
     private AccessTransformerList masterList = new AccessTransformerList();
@@ -98,5 +100,17 @@ public enum ClassTransformer {
         return writer.toByteArray();
 */
         return null;
+    }
+
+    public void addResource(final Path path) {
+        try {
+            masterList.loadFromPath(path, path.toString());
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Invalid path "+ path, e);
+        }
+    }
+
+    public boolean handlesClass(final String className) {
+        return masterList.containsClassTarget(className);
     }
 }
