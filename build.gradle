@@ -106,10 +106,13 @@ dependencies {
     compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.10.0'
     compile 'cpw.mods:modlauncher:0.1-SNAPSHOT:api'
     mlserviceCompile 'cpw.mods:modlauncher:0.1-SNAPSHOT:api'
+    mlserviceCompileOnly sourceSets.main.output
     antlr4 'org.antlr:antlr4:4.7.1'
 }
 // Shadow Jar with antlr embedded
 shadowJar {
+    from sourceSets.main.output
+    from sourceSets.mlservice.output
     dependencies {
         exclude(dependency {
             it.moduleName != 'antlr4-runtime'
