@@ -4,6 +4,7 @@ import com.demonwav.primeiron.*;
 import cpw.mods.accesstransformer.*;
 import org.antlr.v4.runtime.*;
 import org.apache.logging.log4j.*;
+import org.objectweb.asm.*;
 
 import java.io.*;
 import java.net.*;
@@ -57,13 +58,14 @@ public class AccessTransformerList {
         );
     }
 
-    public boolean containsClassTarget(final String name) {
-        return accessTransformers.keySet().stream().anyMatch(k->name.equals(k.getClassName()));
+    public boolean containsClassTarget(final Type type) {
+        return accessTransformers.keySet().stream().anyMatch(k->type.equals(k.getASMType()));
     }
 
-    public Map<TargetType, List<AccessTransformer>> getTransformersForTarget(final String name) {
+    public Map<TargetType, List<AccessTransformer>> getTransformersForTarget(final Type type) {
         return accessTransformers.entrySet().stream()
-                .filter(e -> name.equals(e.getKey().getClassName()))
-                .map(Map.Entry::getValue).collect(Collectors.groupingBy(o->o.getTarget().getType(), HashMap::new, Collectors.toList()));
+                .filter(e -> type.equals(e.getKey().getASMType()))
+                .map(Map.Entry::getValue)
+                .collect(Collectors.groupingBy(o->o.getTarget().getType(), HashMap::new, Collectors.toList()));
     }
 }

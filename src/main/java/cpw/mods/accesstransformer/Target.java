@@ -1,5 +1,6 @@
 package cpw.mods.accesstransformer;
 
+import org.objectweb.asm.*;
 import org.objectweb.asm.tree.*;
 
 import java.util.*;
@@ -22,6 +23,9 @@ public class Target {
         return className;
     }
 
+    public final Type getASMType() {
+        return Type.getType(className);
+    }
     @Override
     public String toString() {
         return Objects.toString(className) + " " + Objects.toString(getType());

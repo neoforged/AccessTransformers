@@ -15,18 +15,18 @@ public class ModLauncherService implements ILaunchPluginService {
     }
 
     @Override
-    public void addResource(final Path path) {
-        AccessTransformerEngine.INSTANCE.addResource(path);
+    public void addResource(final Path path, final String resourceName) {
+        AccessTransformerEngine.INSTANCE.addResource(path, resourceName);
     }
 
     @Override
     public ClassNode processClass(final ClassNode classNode, final Type classType) {
-        return null;
+        return AccessTransformerEngine.INSTANCE.transform(classNode, classType);
     }
 
     @Override
     public boolean handlesClass(final Type classType) {
-        return AccessTransformerEngine.INSTANCE.handlesClass(classType.getClassName());
+        return AccessTransformerEngine.INSTANCE.handlesClass(classType);
     }
 
     @Override

@@ -16,12 +16,13 @@ public enum AccessTransformerEngine {
 
     private AccessTransformerList masterList = new AccessTransformerList();
 
-    public ClassNode transform(ClassNode clazzNode) {
-        if (!masterList.containsClassTarget(clazzNode.name)) {
+    public ClassNode transform(ClassNode clazzNode, final Type classType) {
+        // this should never happen but safety first
+        if (!masterList.containsClassTarget(classType)) {
             return clazzNode;
         }
 
-        final Map<TargetType, List<AccessTransformer>> transformersForTarget = masterList.getTransformersForTarget(clazzNode.name);
+        final Map<TargetType, List<AccessTransformer>> transformersForTarget = masterList.getTransformersForTarget(classType);
         transformersForTarget.forEach((tt, ats) -> {
             ats.stream().forEach(at-> at.applyModifier(clazzNode));
         });
@@ -102,15 +103,15 @@ public enum AccessTransformerEngine {
         return null;
     }
 
-    public void addResource(final Path path) {
+    public void addResource(final Path path, final String resourceName) {
         try {
-            masterList.loadFromPath(path, path.toString());
+            masterList.loadFromPath(path, resourceName);
         } catch (IOException e) {
             throw new IllegalArgumentException("Invalid path "+ path, e);
         }
     }
 
-    public boolean handlesClass(final String className) {
+    public boolean handlesClass(final Type className) {
         return masterList.containsClassTarget(className);
     }
 }
