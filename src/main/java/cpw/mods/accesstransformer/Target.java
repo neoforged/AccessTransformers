@@ -1,18 +1,16 @@
 package cpw.mods.accesstransformer;
 
 import org.objectweb.asm.*;
-import org.objectweb.asm.tree.*;
 
 import java.util.*;
-import java.util.concurrent.*;
-import java.util.function.*;
 
-public class Target {
+public abstract class Target<T> {
     private final String className;
-
+    private Type type;
 
     public Target(String className) {
         this.className = className;
+        this.type = Type.getType("L" + className.replaceAll("\\.", "/") + ";");
     }
 
     public TargetType getType() {
@@ -24,7 +22,7 @@ public class Target {
     }
 
     public final Type getASMType() {
-        return Type.getType(className);
+        return type;
     }
     @Override
     public String toString() {
@@ -43,11 +41,6 @@ public class Target {
         return Objects.hash(getClassName(), getType(), "CLASS");
     }
 
-
-    public <T> boolean findAndApplyToNode(ClassNode node, Function<T, Void> action) {
-        @SuppressWarnings("unchecked")
-        final Function<ClassNode, Void> action1 = (Function<ClassNode, Void>) action;
-        action1.apply(node);
-        return true;
-    }
+    public abstract String targetName();
+    public abstract void apply(final T node, final AccessTransformer.Modifier targetAccess, final AccessTransformer.FinalState targetFinalState, Set<String> privateChanged);
 }

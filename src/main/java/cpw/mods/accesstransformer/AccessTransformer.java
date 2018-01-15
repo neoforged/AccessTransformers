@@ -1,14 +1,14 @@
 package cpw.mods.accesstransformer;
 
-import org.apache.logging.log4j.*;
 import org.objectweb.asm.*;
-import org.objectweb.asm.tree.*;
 
 import java.util.*;
+import java.util.function.*;
 import java.util.stream.*;
 
+import static cpw.mods.accesstransformer.Logging.log;
+
 public class AccessTransformer {
-    private static final Logger LOG = LogManager.getLogger();
     private final Target memberTarget;
     private final Modifier targetAccess;
     private final FinalState targetFinalState;
@@ -21,7 +21,8 @@ public class AccessTransformer {
         this.origins.add(origin+":"+lineNumber);
     }
 
-    public Target getTarget() {
+    @SuppressWarnings("unchecked")
+    public <T> Target<T> getTarget() {
         return this.memberTarget;
     }
 
@@ -42,12 +43,9 @@ public class AccessTransformer {
         return origins;
     }
 
-    public void applyModifier(final ClassNode clazzNode) {
-        getTarget().findAndApplyToNode(clazzNode, (ClassNode cn) -> {
-            LOG.debug("Modifying access of {} to {}", this::getTarget, ()->targetAccess);
-            clazzNode.access = targetAccess.mergeWith(clazzNode.access);
-            return null;
-        });
+    public <T> void applyModifier(final T node, final Class<T> type, final Set<String> privateChanged) {
+        log.debug("Transforming {} to access {} and {}", getTarget(), targetAccess, targetFinalState);
+        getTarget().apply(node, targetAccess, targetFinalState, privateChanged);
     }
 
     public enum Modifier {
@@ -65,7 +63,16 @@ public class AccessTransformer {
     }
 
     public enum FinalState {
-        LEAVE, MAKEFINAL, REMOVEFINAL, CONFLICT
+        LEAVE(i->i), MAKEFINAL(i->i | Opcodes.ACC_FINAL), REMOVEFINAL(i->i & ~Opcodes.ACC_FINAL), CONFLICT(i->i);
+        private IntFunction<Integer> function;
+
+        FinalState(final IntFunction<Integer> function) {
+            this.function = function;
+        }
+
+        public int mergeWith(final int access) {
+            return function.apply(access);
+        }
     }
 
     @Override

@@ -1,6 +1,6 @@
 package cpw.mods.accesstransformer.service;
 
-import cpw.mods.accesstransformer.transformer.*;
+import cpw.mods.accesstransformer.*;
 import cpw.mods.modlauncher.serviceapi.*;
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.*;

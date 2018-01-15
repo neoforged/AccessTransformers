@@ -10,6 +10,7 @@ import java.io.*;
 import java.net.*;
 import java.nio.file.*;
 import java.util.*;
+import java.util.function.*;
 import java.util.stream.*;
 
 public class AccessTransformerList {
@@ -62,10 +63,10 @@ public class AccessTransformerList {
         return accessTransformers.keySet().stream().anyMatch(k->type.equals(k.getASMType()));
     }
 
-    public Map<TargetType, List<AccessTransformer>> getTransformersForTarget(final Type type) {
+    public Map<TargetType, Map<String,AccessTransformer>> getTransformersForTarget(final Type type) {
         return accessTransformers.entrySet().stream()
                 .filter(e -> type.equals(e.getKey().getASMType()))
                 .map(Map.Entry::getValue)
-                .collect(Collectors.groupingBy(o->o.getTarget().getType(), HashMap::new, Collectors.toList()));
+                .collect(Collectors.groupingBy(o->o.getTarget().getType(), HashMap::new, Collectors.toMap(at->at.getTarget().targetName(), Function.identity())));
     }
 }

@@ -1,8 +1,10 @@
 package cpw.mods.accesstransformer;
 
+import org.objectweb.asm.tree.*;
+
 import java.util.*;
 
-public class FieldTarget extends Target {
+public class FieldTarget extends Target<FieldNode> {
     private final String fieldName;
 
     public FieldTarget(String className, String fieldName) {
@@ -30,5 +32,20 @@ public class FieldTarget extends Target {
     @Override
     public int hashCode() {
         return Objects.hash(getClassName(), getType(), fieldName);
+    }
+
+    @Override
+    public void apply(final FieldNode node, final AccessTransformer.Modifier targetAccess, final AccessTransformer.FinalState targetFinalState, Set<String> privateChanged) {
+        node.access = targetAccess.mergeWith(node.access);
+        node.access = targetFinalState.mergeWith(node.access);
+    }
+
+    @Override
+    public String targetName() {
+        return getFieldName();
+    }
+
+    public String getFieldName() {
+        return fieldName;
     }
 }

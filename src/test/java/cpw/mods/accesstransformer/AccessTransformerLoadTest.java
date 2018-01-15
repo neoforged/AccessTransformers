@@ -2,9 +2,7 @@ package cpw.mods.accesstransformer;
 
 import cpw.mods.accesstransformer.parser.*;
 import cpw.mods.accesstransformer.service.*;
-import cpw.mods.accesstransformer.transformer.*;
 import org.junit.jupiter.api.*;
-import org.powermock.reflect.*;
 import org.powermock.reflect.internal.*;
 
 import java.io.*;

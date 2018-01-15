@@ -21,7 +21,7 @@ public class AccessTransformVisitor extends AtParserBaseVisitor<Void> {
         if (ctx.line_value() == null) {
             String className = ctx.class_name().getText();
             String modifier = ctx.keyword().getText();
-            Target target = new Target(className);
+            Target target = new ClassTarget(className);
             accessTransformers.add(new AccessTransformer(target, ModifierProcessor.modifier(modifier), ModifierProcessor.finalState(modifier), this.origin, ctx.getStart().getLine()));
         }
         return super.visitEntry(ctx);

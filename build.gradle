@@ -48,6 +48,7 @@ task generateGrammarSource(dependsOn: antlrOutputDir, type: JavaExec)
 
 sourceSets {
     mlservice
+    testJars
     antlr4 {
         java {
             srcDir {
@@ -72,6 +73,11 @@ task mlserviceJar(type: Jar) {
     from sourceSets.mlservice.output
 }
 
+task testsJar(type: Jar) {
+    classifier = 'testsjar'
+    from sourceSets.testJars.output
+}
+
 task sourcesJar(type: Jar) {
     classifier = 'sources'
     from sourceSets.main.allSource
@@ -81,6 +87,7 @@ task sourcesJar(type: Jar) {
 artifacts {
     archives jar
     archives sourcesJar
+    archives testsJar
     archives mlserviceJar
 }
 
@@ -97,12 +104,16 @@ repositories {
 dependencies {
     testCompile "org.junit.jupiter:junit-jupiter-api:5.0.2"
     testCompile(group: 'org.powermock', name: 'powermock-core', version: '1.7.3')
+    testCompile 'cpw.mods:modlauncher:0.1-SNAPSHOT'
+    testCompileOnly sourceSets.mlservice.output
     testRuntime "org.junit.jupiter:junit-jupiter-engine:5.0.2"
     testRuntime group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.10.0'
+    testRuntime sourceSets.testJars.runtimeClasspath
     compile 'org.antlr:antlr4-runtime:4.7.1'
     compile 'org.ow2.asm:asm:6.0'
     compile 'org.ow2.asm:asm-commons:6.0'
     compile 'org.ow2.asm:asm-tree:6.0'
+    compile 'net.sf.jopt-simple:jopt-simple:5.0.4'
     compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.10.0'
     compile 'cpw.mods:modlauncher:0.1-SNAPSHOT:api'
     mlserviceCompile 'cpw.mods:modlauncher:0.1-SNAPSHOT:api'
