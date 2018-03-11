@@ -75,13 +75,13 @@ task mlserviceJar(type: Jar) {
     manifest {
         attributes(["Specification-Title": "accesstransformer",
                     "Specification-Vendor": "Forge",
-                    "Specification-Version": "1", // We are version 1 of the modlauncher specification
+                    "Specification-Version": "1", // We are version 1 of the accesstransformer specification
                     "Implementation-Title": project.name,
                     "Implementation-Version": version,
                     "Implementation-Vendor" :"Forge",
                     "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
                     "Git-Commit": grgit.head().getAbbreviatedId(8),
-                    "Git-Branch": grgit.branch.getCurrent().getName() ], "accesstransformer")
+                    "Git-Branch": grgit.branch.getCurrent().getName() ], "cpw.mods.accesstransformer")
     }
 }
 
