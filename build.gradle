@@ -102,6 +102,7 @@ artifacts {
     archives sourcesJar
     archives testsJar
     archives mlserviceJar
+    archives shadowJar
 }
 
 build.dependsOn mlserviceJar
@@ -136,6 +137,7 @@ dependencies {
 }
 // Shadow Jar with antlr embedded
 shadowJar {
+    classifier = 'shadowed'
     from sourceSets.main.output
     from sourceSets.mlservice.output
     dependencies {
