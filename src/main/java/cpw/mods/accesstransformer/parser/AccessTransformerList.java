@@ -13,6 +13,8 @@ import java.util.*;
 import java.util.function.*;
 import java.util.stream.*;
 
+import static cpw.mods.accesstransformer.Logging.log;
+
 public class AccessTransformerList {
     private static final Logger LOG = LogManager.getLogger();
     private final Map<Target, AccessTransformer> accessTransformers = new HashMap<>();
@@ -23,6 +25,7 @@ public class AccessTransformerList {
     }
 
     public void loadFromPath(final Path path, final String resourceName) throws IOException {
+        LOG.debug("Loading access transformer {} from path {}", resourceName, path);
         final CharStream stream = CharStreams.fromPath(path);
         final AtLexer lexer = new AtLexer(stream);
         final CommonTokenStream tokenStream = new CommonTokenStream(lexer);
@@ -40,6 +43,7 @@ public class AccessTransformerList {
         }
         this.accessTransformers.clear();
         this.accessTransformers.putAll(localATCopy);
+        LOG.debug("Loaded access transformer {} from path {}", resourceName, path);
     }
 
     private void mergeAccessTransformers(final List<AccessTransformer> atList, final Map<Target, AccessTransformer> accessTransformers, final String resourceName) {
