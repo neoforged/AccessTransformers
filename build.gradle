@@ -145,6 +145,19 @@ shadowJar {
             it.moduleName != 'antlr4-runtime'
         })
     }
+    manifest {
+        attributes(["Specification-Title": "accesstransformers",
+                    "Specification-Vendor": "Forge",
+                    "Specification-Version": "1", // Currently version 1 of the accesstransformer specification
+                    "Implementation-Title": project.name,
+                    "Implementation-Version": "${version}+${System.getenv("BUILD_NUMBER")?:0}+${grgit.head().getAbbreviatedId(8)}",
+                    "Implementation-Vendor" :"Forge",
+                    "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                    "Git-Commit": grgit.head().getAbbreviatedId(8),
+                    "Git-Branch": grgit.branch.getCurrent().getName() ],
+                "cpw/mods/accesstransformer/service/")
+    }
+
 }
 uploadArchives {
     repositories.mavenDeployer {
