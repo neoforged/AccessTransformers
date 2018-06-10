@@ -1,6 +1,5 @@
 package cpw.mods.accesstransformer;
 
-import cpw.mods.accesstransformer.*;
 import cpw.mods.accesstransformer.parser.*;
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.*;
@@ -9,9 +8,6 @@ import java.io.*;
 import java.nio.file.*;
 import java.util.*;
 import java.util.stream.*;
-
-import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
-import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 
 public enum AccessTransformerEngine {
     INSTANCE;

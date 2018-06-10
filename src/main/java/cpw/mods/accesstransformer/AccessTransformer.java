@@ -1,14 +1,18 @@
 package cpw.mods.accesstransformer;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 import org.objectweb.asm.*;
 
 import java.util.*;
 import java.util.function.*;
 import java.util.stream.*;
 
-import static cpw.mods.accesstransformer.Logging.log;
-
 public class AccessTransformer {
+    private static final Logger LOGGER = LogManager.getLogger("AXFORM");
+    private static final Marker AXFORM_MARKER = MarkerManager.getMarker("AXFORM");
     private final Target memberTarget;
     private final Modifier targetAccess;
     private final FinalState targetFinalState;
@@ -44,7 +48,7 @@ public class AccessTransformer {
     }
 
     public <T> void applyModifier(final T node, final Class<T> type, final Set<String> privateChanged) {
-        log.debug("Transforming {} to access {} and {}", getTarget(), targetAccess, targetFinalState);
+        LOGGER.debug(AXFORM_MARKER,"Transforming {} to access {} and {}", getTarget(), targetAccess, targetFinalState);
         getTarget().apply(node, targetAccess, targetFinalState, privateChanged);
     }
 

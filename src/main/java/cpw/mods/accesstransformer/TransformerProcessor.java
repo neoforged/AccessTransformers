@@ -2,6 +2,10 @@ package cpw.mods.accesstransformer;
 
 import joptsimple.*;
 import joptsimple.util.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.core.config.*;
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.*;
@@ -12,9 +16,11 @@ import java.nio.file.*;
 import java.util.*;
 import java.util.stream.*;
 
-import static cpw.mods.accesstransformer.Logging.log;
-
 public class TransformerProcessor {
+
+    private static final Logger LOGGER = LogManager.getLogger("AXFORM");
+    private static final Marker AXFORM_MARKER = MarkerManager.getMarker("AXFORM");
+
     public static void main(String... args) {
         Configurator.initialize("", "atlog4j2.xml");
         final OptionParser optionParser = new OptionParser();
@@ -32,24 +38,24 @@ public class TransformerProcessor {
             outputJarPath = inputJarPath.resolveSibling(s.substring(0,s.length()-4)+"-new.jar");
             atFilePath = atFile.value(optionSet).toAbsolutePath();
         } catch (Exception e) {
-            log.error("Option Parsing Error", e);
+            LOGGER.error(AXFORM_MARKER,"Option Parsing Error", e);
             return;
         }
-        log.info("Reading from {}", inputJarPath);
-        log.info("Writing to {}", outputJarPath);
-        log.info("Transform file {}", atFilePath);
+        LOGGER.debug(AXFORM_MARKER,"Reading from {}", inputJarPath);
+        LOGGER.debug(AXFORM_MARKER,"Writing to {}", outputJarPath);
+        LOGGER.debug(AXFORM_MARKER,"Transform file {}", atFilePath);
         try {
             Files.deleteIfExists(outputJarPath);
         } catch (IOException e) {
-            log.error("Deleting existing out JAR", e);
+            LOGGER.error(AXFORM_MARKER,"Deleting existing out JAR", e);
         }
         processJar(inputJar, atFile, optionSet, outputJarPath, atFilePath);
-        log.info("Transforming JAR complete {}", outputJarPath);
+        LOGGER.debug(AXFORM_MARKER,"Transforming JAR complete {}", outputJarPath);
     }
 
     private static void processJar(final ArgumentAcceptingOptionSpec<Path> inputJar, final ArgumentAcceptingOptionSpec<Path> atFile, final OptionSet optionSet, final Path outputJarPath, final Path atFilePath) {
         AccessTransformerEngine.INSTANCE.addResource(atFile.value(optionSet), "input");
-        log.info("Loaded transformers {}", atFilePath);
+        LOGGER.debug(AXFORM_MARKER,"Loaded transformers {}", atFilePath);
         final URI outJarURI = URI.create("jar:file:" + outputJarPath);
         try (FileSystem outJar = FileSystems.newFileSystem(outJarURI, new HashMap<String, String>() {{
             put("create", "true");
@@ -73,31 +79,31 @@ public class TransformerProcessor {
                                     classReader.accept(cn, 0);
                                     final Type type = Type.getType('L'+cn.name.replaceAll("\\.","/")+';');
                                     if (AccessTransformerEngine.INSTANCE.handlesClass(type)) {
-                                        log.debug("Transforming class {}", type);
+                                        LOGGER.debug(AXFORM_MARKER,"Transforming class {}", type);
                                         AccessTransformerEngine.INSTANCE.transform(cn, type);
                                         ClassWriter cw = new ClassWriter(Opcodes.ASM5);
                                         cn.accept(cw);
                                         Files.write(outPath, cw.toByteArray());
                                     } else {
-                                        log.debug("Skipping {}", type);
+                                        LOGGER.debug(AXFORM_MARKER,"Skipping {}", type);
                                         Files.copy(path, outPath);
                                     }
                                 } catch (IOException e) {
-                                    log.error("Reading {}", path, e);
+                                    LOGGER.error(AXFORM_MARKER,"Reading {}", path, e);
                                 }
                             } else if (!Files.exists(outPath)){
                                 try {
                                     Files.copy(path, outPath);
                                 } catch (IOException e) {
-                                    log.error("Copying {}", path, e);
+                                    LOGGER.error(AXFORM_MARKER,"Copying {}", path, e);
                                 }
                             }
                         });
             } catch (IOException e) {
-                log.error("Reading JAR", e);
+                LOGGER.error(AXFORM_MARKER,"Reading JAR", e);
             }
         } catch (IOException e) {
-            log.error("Writing JAR", e);
+            LOGGER.error(AXFORM_MARKER,"Writing JAR", e);
         }
     }
 }

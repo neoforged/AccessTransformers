@@ -13,10 +13,9 @@ import java.util.*;
 import java.util.function.*;
 import java.util.stream.*;
 
-import static cpw.mods.accesstransformer.Logging.log;
-
 public class AccessTransformerList {
-    private static final Logger LOG = LogManager.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger("AXFORM");
+    private static final Marker AXFORM_MARKER = MarkerManager.getMarker("AXFORM");
     private final Map<Target, AccessTransformer> accessTransformers = new HashMap<>();
 
     public void loadFromResource(final String resourceName) throws URISyntaxException, IOException {
@@ -25,7 +24,7 @@ public class AccessTransformerList {
     }
 
     public void loadFromPath(final Path path, final String resourceName) throws IOException {
-        LOG.debug("Loading access transformer {} from path {}", resourceName, path);
+        LOGGER.debug(AXFORM_MARKER,"Loading access transformer {} from path {}", resourceName, path);
         final CharStream stream = CharStreams.fromPath(path);
         final AtLexer lexer = new AtLexer(stream);
         final CommonTokenStream tokenStream = new CommonTokenStream(lexer);
@@ -38,12 +37,12 @@ public class AccessTransformerList {
         mergeAccessTransformers(accessTransformVisitor.getAccessTransformers(), localATCopy, resourceName);
         final List<AccessTransformer> invalidTransformers = invalidTransformers(localATCopy);
         if (!invalidTransformers.isEmpty()) {
-            invalidTransformers.forEach(at -> LOG.error("Invalid access transform final state for target {}. Referred in resources {}.",at.getTarget(), at.getOrigins()));
+            invalidTransformers.forEach(at -> LOGGER.error(AXFORM_MARKER,"Invalid access transform final state for target {}. Referred in resources {}.",at.getTarget(), at.getOrigins()));
             throw new IllegalArgumentException("Invalid AT final conflicts");
         }
         this.accessTransformers.clear();
         this.accessTransformers.putAll(localATCopy);
-        LOG.debug("Loaded access transformer {} from path {}", resourceName, path);
+        LOGGER.debug(AXFORM_MARKER,"Loaded access transformer {} from path {}", resourceName, path);
     }
 
     private void mergeAccessTransformers(final List<AccessTransformer> atList, final Map<Target, AccessTransformer> accessTransformers, final String resourceName) {
