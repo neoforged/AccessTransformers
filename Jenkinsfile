@@ -6,7 +6,7 @@ pipeline {
     }
   }
   environment {
-    GRADLE_OPTS=--foreground --info
+    GRADLE_OPTS='--foreground --info'
   }
   stages {
     stage('fetch') {
@@ -16,7 +16,7 @@ pipeline {
     }
     stage('buildandtest') {
       steps {
-        sh './gradlew --refresh-dependencies build test'
+        sh './gradlew --refresh-dependencies --continue build test'
       }
     }
     stage('publish') {
