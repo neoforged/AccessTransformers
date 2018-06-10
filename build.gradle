@@ -131,7 +131,7 @@ dependencies {
     implementation("cpw.mods:modlauncher:0.1-SNAPSHOT:api")
     mlserviceImplementation("cpw.mods:modlauncher:0.1-SNAPSHOT:api")
     mlserviceImplementation(sourceSets.main.output)
-    antlr4("org.antlr:antlr4:4.7.1")
+    antlr4Implementation("org.antlr:antlr4:4.7.1")
 }
 
 
@@ -206,7 +206,7 @@ generateGrammarSource {
     outputs.dir file(antlr.destinationDir)
     def grammars = fileTree(antlr.antlrSource).include('**/*.g4')
     main = 'org.antlr.v4.Tool'
-    classpath = configurations.antlr4
+    classpath = configurations.antlr4Compile
     def pkg = antlr.grammarpackage.replaceAll("\\.", "/")
     args = ["-o", "${antlr.destinationDir}/${pkg}", "-visitor", "-package", antlr.grammarpackage, grammars.files].flatten()
 }
