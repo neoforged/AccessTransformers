@@ -94,13 +94,6 @@ task sourcesJar(type: Jar) {
     from sourceSets.mlservice.allSource
 }
 
-artifacts {
-    archives jar
-    archives sourcesJar
-    archives testsJar
-    archives mlserviceJar
-    archives shadowJar
-}
 
 build.dependsOn testsJar
 build.dependsOn mlserviceJar
@@ -151,10 +144,21 @@ shadowJar {
 
 }
 
+artifacts {
+    archives jar
+    archives sourcesJar
+    archives testsJar
+    archives mlserviceJar
+    archives shadowJar
+}
 
 publishing {
     publications {
         mavenJava(MavenPublication) {
+            from components.java
+            artifact sourcesJar
+            artifact shadowJar
+            artifact mlserviceJar
             pom {
                 name = 'Access Transformers'
                 description = 'Transforms class member access based on specification files'
