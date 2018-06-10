@@ -26,7 +26,7 @@ public class TransformationTest {
 
     @Test
     public void testTestingLaunchHandler() throws IOException, URISyntaxException {
-        System.setProperty("test.harness", "build/classes/testJars");
+        System.setProperty("test.harness", "build/classes/java/testJars");
         System.setProperty("test.harness.callable", "cpw.mods.accesstransformer.TransformationTest$TestCallback");
         calledback = false;
         TestCallback.callable = () -> {

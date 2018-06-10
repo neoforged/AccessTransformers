@@ -1,21 +1,10 @@
-buildscript {
-    repositories {
-        mavenCentral()
-        // The following is only necessary if you want to use SNAPSHOT releases.
-        // maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
-    }
-    dependencies {
-        classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.2'
-    }
-}
-
 plugins {
-    id 'com.github.johnrengelman.shadow' version '2.0.2'
-    id 'org.ajoberstar.grgit' version '2.1.1'
+    id 'com.github.johnrengelman.shadow' version '2.0.4'
+    id 'org.ajoberstar.grgit' version '2.2.1'
 }
-apply plugin: 'org.junit.platform.gradle.plugin'
 apply plugin: 'maven'
-apply plugin: 'java'
+apply plugin: 'maven-publish'
+apply plugin: 'java-library'
 apply plugin: 'eclipse'
 apply plugin: 'jacoco'
 
@@ -26,7 +15,11 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 jacoco {
-    toolVersion = "0.7.9"
+    toolVersion = "0.8.1"
+}
+
+test {
+    useJUnitPlatform()
 }
 
 ext.antlr = [
@@ -68,21 +61,25 @@ clean {
     delete antlr.destinationDir
 }
 
+ext.sharedManifest = manifest {
+    attributes(["Specification-Title": "accesstransformers",
+                "Specification-Vendor": "Forge",
+                "Specification-Version": "1", // Currently version 1 of the accesstransformer specification
+                "Implementation-Title": project.name,
+                "Implementation-Version": "${version}+${System.getenv("BUILD_NUMBER")?:0}+${grgit.head().getAbbreviatedId(8)}",
+                "Implementation-Vendor" :"Forge",
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                "Git-Commit": grgit.head().getAbbreviatedId(8),
+                "Git-Branch": grgit.branch.current().getName() ],
+            "cpw/mods/accesstransformer/service/")
+}
+
 task mlserviceJar(type: Jar) {
     classifier = 'service'
     from sourceSets.main.output
     from sourceSets.mlservice.output
-    manifest {
-        attributes(["Specification-Title": "accesstransformers",
-                    "Specification-Vendor": "Forge",
-                    "Specification-Version": "1", // Currently version 1 of the accesstransformer specification
-                    "Implementation-Title": project.name,
-                    "Implementation-Version": "${version}+${System.getenv("BUILD_NUMBER")?:0}+${grgit.head().getAbbreviatedId(8)}",
-                    "Implementation-Vendor" :"Forge",
-                    "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-                    "Git-Commit": grgit.head().getAbbreviatedId(8),
-                    "Git-Branch": grgit.branch.getCurrent().getName() ],
-                "cpw/mods/accesstransformer/service/")
+    manifest = project.manifest {
+        from sharedManifest
     }
 }
 
@@ -105,6 +102,7 @@ artifacts {
     archives shadowJar
 }
 
+build.dependsOn testsJar
 build.dependsOn mlserviceJar
 
 repositories {
@@ -116,100 +114,88 @@ repositories {
 }
 
 dependencies {
-    testCompile "org.junit.jupiter:junit-jupiter-api:5.0.2"
-    testCompile(group: 'org.powermock', name: 'powermock-core', version: '1.7.3')
-    testCompile 'cpw.mods:modlauncher:0.1-SNAPSHOT'
-    testCompileOnly sourceSets.mlservice.output
-    testRuntime "org.junit.jupiter:junit-jupiter-engine:5.0.2"
-    testRuntime group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.10.0'
-    testRuntime sourceSets.testJars.runtimeClasspath
-    testRuntime sourceSets.mlservice.output
-    compile 'org.antlr:antlr4-runtime:4.7.1'
-    compile 'org.ow2.asm:asm:6.0'
-    compile 'org.ow2.asm:asm-commons:6.0'
-    compile 'org.ow2.asm:asm-tree:6.0'
-    compile 'net.sf.jopt-simple:jopt-simple:5.0.4'
-    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.10.0'
-    compile 'cpw.mods:modlauncher:0.1-SNAPSHOT:api'
-    mlserviceCompile 'cpw.mods:modlauncher:0.1-SNAPSHOT:api'
-    mlserviceCompileOnly sourceSets.main.output
-    antlr4 'org.antlr:antlr4:4.7.1'
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.2.0")
+    testImplementation("org.powermock:powermock-core:1.7.4")
+    testImplementation("cpw.mods:modlauncher:0.1-SNAPSHOT")
+    testCompileOnly(sourceSets.mlservice.output)
+    testRuntime("org.junit.jupiter:junit-jupiter-engine:5.2.0")
+    testRuntime("org.apache.logging.log4j:log4j-core:2.11.0")
+    testRuntime(sourceSets.testJars.runtimeClasspath)
+    testRuntime(sourceSets.mlservice.output)
+    implementation("org.antlr:antlr4-runtime:4.7.1")
+    implementation("net.sf.jopt-simple:jopt-simple:5.0.4")
+    implementation("org.ow2.asm:asm:6.2")
+    implementation("org.ow2.asm:asm-commons:6.2")
+    implementation("org.ow2.asm:asm-tree:6.2")
+    implementation("org.apache.logging.log4j:log4j-api:2.11.0")
+    implementation("cpw.mods:modlauncher:0.1-SNAPSHOT:api")
+    mlserviceImplementation("cpw.mods:modlauncher:0.1-SNAPSHOT:api")
+    mlserviceImplementation(sourceSets.main.output)
+    antlr4("org.antlr:antlr4:4.7.1")
 }
+
+
 // Shadow Jar with antlr embedded
 shadowJar {
     classifier = 'shadowed'
     from sourceSets.main.output
     from sourceSets.mlservice.output
+    manifest {
+        inheritFrom mlserviceJar.manifest
+    }
     dependencies {
         exclude(dependency {
             it.moduleName != 'antlr4-runtime'
         })
     }
-    manifest {
-        attributes(["Specification-Title": "accesstransformers",
-                    "Specification-Vendor": "Forge",
-                    "Specification-Version": "1", // Currently version 1 of the accesstransformer specification
-                    "Implementation-Title": project.name,
-                    "Implementation-Version": "${version}+${System.getenv("BUILD_NUMBER")?:0}+${grgit.head().getAbbreviatedId(8)}",
-                    "Implementation-Vendor" :"Forge",
-                    "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-                    "Git-Commit": grgit.head().getAbbreviatedId(8),
-                    "Git-Branch": grgit.branch.getCurrent().getName() ],
-                "cpw/mods/accesstransformer/service/")
-    }
 
 }
-uploadArchives {
-    repositories.mavenDeployer {
-        if (project.hasProperty('forgeMavenPassword'))
-        {
-            repository(url: "http://files.minecraftforge.net/maven/manage/upload") {
-                authentication(userName: project.getProperty('forgeMavenUser'), password: project.getProperty('forgeMavenPassword'))
-            }
-        } else {
-            repository(url: 'file://localhost/' + project.file('repo').getAbsolutePath())
-        }
-        pom {
-            groupId = project.group
-            artifactId = project.archivesBaseName
-            project {
-                name project.archivesBaseName
-                packaging 'jar'
-                description 'Access Transformers library'
-                url 'https://github.com/cpw/accesstransformers'
 
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            pom {
+                name = 'Access Transformers'
+                description = 'Transforms class member access based on specification files'
+                url = 'https://github.com/cpw/accesstransformers'
                 scm {
-                    url 'https://github.com/cpw/accesstransformers'
-                    connection 'scm:git:git://github.com/cpw/accesstransformers.git'
-                    developerConnection 'scm:git:git@github.com:cpw/accesstransformers.git'
+                    url = 'https://github.com/cpw/accesstransformers'
+                    connection = 'scm:git:git://github.com/cpw/accesstransformers.git'
+                    developerConnection = 'scm:git:git@github.com:cpw/accesstransformers.git'
                 }
-
                 issueManagement {
-                    system 'github'
-                    url 'https://github.com/cpw/accesstransformers/issues'
+                    system = 'github'
+                    url = 'https://github.com/cpw/accesstransformers/issues'
                 }
 
                 licenses {
                     license {
-                        name 'MIT'
-                        url 'https://opensource.org/licenses/MIT'
-                        distribution 'repo'
+                        name = 'MIT'
+                        url = 'https://opensource.org/licenses/MIT'
                     }
                 }
 
                 developers {
                     developer {
-                        id 'cpw'
-                        name 'cpw'
-                        roles { role 'developer' }
+                        id = 'cpw'
+                        name = 'cpw'
                     }
                     developer {
-                        id 'DemonWav'
-                        name 'DemonWav'
-                        roles { role 'developer' }
+                        id = 'DemonWav'
+                        name = 'DemonWav'
                     }
                 }
             }
+        }
+    }
+    repositories {
+        maven {
+            credentials {
+                username project.properties.forgeMavenUser?:'fake'
+                password project.properties.forgeMavenPassword?:'news'
+            }
+            url "http://files.minecraftforge.net/maven/manage/upload"
         }
     }
 }
