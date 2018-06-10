@@ -131,7 +131,7 @@ dependencies {
     implementation("cpw.mods:modlauncher:0.1-SNAPSHOT:api")
     mlserviceImplementation("cpw.mods:modlauncher:0.1-SNAPSHOT:api")
     mlserviceImplementation(sourceSets.main.output)
-    antlr4Implementation("org.antlr:antlr4:4.7.1")
+    antlr4Compile("org.antlr:antlr4:4.7.1")
 }
 
 
