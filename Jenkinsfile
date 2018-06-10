@@ -6,7 +6,7 @@ pipeline {
     }
   }
   environment {
-    GRADLE_OPTS='--foreground --info'
+    GRADLE_OPTS='--no-daemon --info'
   }
   stages {
     stage('fetch') {
