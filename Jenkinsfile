@@ -32,7 +32,7 @@ pipeline {
     }
     post {
         always {
-            gitChangelog noIssueName: 'Unspecified', returnType: 'STRING', template: '''
+            def changelogString = gitChangelog noIssueName: 'Unspecified', returnType: 'STRING', template: '''
             <h1>Access Transformers Changelog</h1>
 
             <p>
