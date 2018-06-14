@@ -71,7 +71,7 @@ pipeline {
              {{/issues}}
             {{/tags}}
             '''
-            writeFile file: "build/changelog.html" text: changelogString
+            writeFile file: "build/changelog.html", text: changelogString
             archiveArtifacts artifacts: 'build/changelog.html', fingerprint: false
             archiveArtifacts artifacts: 'build/libs/**/*.jar', fingerprint: true
             junit 'build/test-results/*/*.xml'
