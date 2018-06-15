@@ -26,8 +26,8 @@ pipeline {
             }
             post {
                 success {
-                    writeChangelog(currentBuild, 'changelog.txt')
-                    archiveArtifacts artifacts: 'changelog.txt', fingerprint: false
+                    writeChangelog(currentBuild, 'build/changelog.txt')
+                    archiveArtifacts artifacts: 'build/changelog.txt', fingerprint: false
                 }
             }
         }
