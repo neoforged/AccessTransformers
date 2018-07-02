@@ -9,7 +9,7 @@ apply plugin: 'java-library'
 apply plugin: 'eclipse'
 apply plugin: 'jacoco'
 
-group 'cpw.mods'
+group 'net.minecraftforge'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -114,12 +114,12 @@ repositories {
 }
 
 dependencies {
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.2.0")
-    testImplementation("org.powermock:powermock-core:1.7.4")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.2.+")
+    testImplementation("org.powermock:powermock-core:1.7.+")
     testImplementation("cpw.mods:modlauncher:0.1+")
     testCompileOnly(sourceSets.mlservice.output)
-    testRuntime("org.junit.jupiter:junit-jupiter-engine:5.2.0")
-    testRuntime("org.apache.logging.log4j:log4j-core:2.11.0")
+    testRuntime("org.junit.jupiter:junit-jupiter-engine:5.2.+")
+    testRuntime("org.apache.logging.log4j:log4j-core:2.11.+")
     testRuntime(sourceSets.testJars.runtimeClasspath)
     testRuntime(sourceSets.mlservice.output)
     implementation("org.antlr:antlr4-runtime:4.7.1")
@@ -127,7 +127,7 @@ dependencies {
     implementation("org.ow2.asm:asm:6.2")
     implementation("org.ow2.asm:asm-commons:6.2")
     implementation("org.ow2.asm:asm-tree:6.2")
-    implementation("org.apache.logging.log4j:log4j-api:2.11.0")
+    implementation("org.apache.logging.log4j:log4j-api:2.11.+")
     implementation("cpw.mods:modlauncher:0.1+:api")
     mlserviceImplementation("cpw.mods:modlauncher:0.1+:api")
     mlserviceImplementation(sourceSets.main.output)
@@ -169,15 +169,15 @@ publishing {
             pom {
                 name = 'Access Transformers'
                 description = 'Transforms class member access based on specification files'
-                url = 'https://github.com/cpw/accesstransformers'
+                url = 'https://github.com/MinecraftForge/accesstransformers'
                 scm {
-                    url = 'https://github.com/cpw/accesstransformers'
-                    connection = 'scm:git:git://github.com/cpw/accesstransformers.git'
-                    developerConnection = 'scm:git:git@github.com:cpw/accesstransformers.git'
+                    url = 'https://github.com/MinecraftForge/accesstransformers'
+                    connection = 'scm:git:git://github.com/MinecraftForge/accesstransformers.git'
+                    developerConnection = 'scm:git:git@github.com:MinecraftForge/accesstransformers.git'
                 }
                 issueManagement {
                     system = 'github'
-                    url = 'https://github.com/cpw/accesstransformers/issues'
+                    url = 'https://github.com/MinecraftForge/accesstransformers/issues'
                 }
 
                 licenses {

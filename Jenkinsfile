@@ -14,7 +14,7 @@ pipeline {
     stages {
         stage('fetch') {
             steps {
-                git(url: 'https://github.com/cpw/accesstransformers.git', changelog: true)
+                git(url: 'https://github.com/MinecraftForge/accesstransformers.git', changelog: true)
             }
         }
         stage('buildandtest') {
@@ -33,14 +33,16 @@ pipeline {
         }
         stage('publish') {
             when {
-                branch 'master'
+                not {
+                    changeRequest()
+                }
             }
             environment {
-                FORGE_MAVEN = credentials('forge-maven-cpw-user')
+                FORGE_MAVEN = credentials('forge-maven-forge-user')
             }
             steps {
                 sh './gradlew ${GRADLE_ARGS} publish -PforgeMavenUser=${FORGE_MAVEN_USR} -PforgeMavenPassword=${FORGE_MAVEN_PSW}'
-                sh 'curl --user ${FORGE_MAVEN} http://files.minecraftforge.net/maven/manage/promote/latest/cpw.mods.accesstransformers/${BUILD_NUMBER}'
+                sh 'curl --user ${FORGE_MAVEN} http://files.minecraftforge.net/maven/manage/promote/latest/net.minecraftforge.accesstransformers/${BUILD_NUMBER}'
             }
         }
     }
