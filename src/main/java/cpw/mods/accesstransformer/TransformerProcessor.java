@@ -25,13 +25,13 @@ public class TransformerProcessor {
         Configurator.initialize("", "atlog4j2.xml");
         final OptionParser optionParser = new OptionParser();
         final ArgumentAcceptingOptionSpec<Path> inputJar = optionParser.accepts("inJar", "Input JAR file to apply transformation to").withRequiredArg().withValuesConvertedBy(new PathConverter(PathProperties.FILE_EXISTING)).required();
-        final ArgumentAcceptingOptionSpec<Path> atFile = optionParser.accepts("atfile", "Access Transformer File").withRequiredArg().withValuesConvertedBy(new PathConverter(PathProperties.FILE_EXISTING)).required();
+        final ArgumentAcceptingOptionSpec<Path> atFiles = optionParser.acceptsAll(list("atfile", "atFile"), "Access Transformer File").withRequiredArg().withValuesConvertedBy(new PathConverter(PathProperties.FILE_EXISTING)).required();
         final ArgumentAcceptingOptionSpec<Path> outputJar = optionParser.accepts("outJar", "Output JAR file").withRequiredArg().withValuesConvertedBy(new PathConverter(PathProperties.NOT_EXISTING)).defaultsTo(null);
 
         final OptionSet optionSet;
         Path inputJarPath;
         Path outputJarPath;
-        Path atFilePath;
+        List<Path> atFilePaths;
         try {
             optionSet = optionParser.parse(args);
             inputJarPath = inputJar.value(optionSet).toAbsolutePath();
@@ -42,32 +42,40 @@ public class TransformerProcessor {
             } else {
                 outputJarPath = outputJarPath.toAbsolutePath();
             }
-            atFilePath = atFile.value(optionSet).toAbsolutePath();
+
+            atFilePaths = atFiles.values(optionSet).stream().map(a -> a.toAbsolutePath()).collect(Collectors.toList());
         } catch (Exception e) {
             LOGGER.error(AXFORM_MARKER,"Option Parsing Error", e);
             return;
         }
         LOGGER.debug(AXFORM_MARKER,"Reading from {}", inputJarPath);
         LOGGER.debug(AXFORM_MARKER,"Writing to {}", outputJarPath);
-        LOGGER.debug(AXFORM_MARKER,"Transform file {}", atFilePath);
+        atFilePaths.forEach(path -> LOGGER.debug(AXFORM_MARKER,"Transform file {}", path));
         try {
             Files.deleteIfExists(outputJarPath);
         } catch (IOException e) {
             LOGGER.error(AXFORM_MARKER,"Deleting existing out JAR", e);
         }
-        processJar(inputJar, atFile, optionSet, outputJarPath, atFilePath);
+        processJar(inputJarPath, outputJarPath, atFilePaths);
         LOGGER.debug(AXFORM_MARKER,"Transforming JAR complete {}", outputJarPath);
     }
 
-    private static void processJar(final ArgumentAcceptingOptionSpec<Path> inputJar, final ArgumentAcceptingOptionSpec<Path> atFile, final OptionSet optionSet, final Path outputJarPath, final Path atFilePath) {
-        AccessTransformerEngine.INSTANCE.addResource(atFile.value(optionSet), "input");
-        LOGGER.debug(AXFORM_MARKER,"Loaded transformers {}", atFilePath);
+    private static List<String> list(String... vars) {
+        return Arrays.asList(vars);
+    }
+
+    private static void processJar(final Path inputJar, final Path outputJarPath, final List<Path> atFilePaths) {
+        atFilePaths.forEach(path -> {
+            AccessTransformerEngine.INSTANCE.addResource(path, path.getFileName().toString());
+            LOGGER.debug(AXFORM_MARKER,"Loaded transformers {}", path);
+        });
+
         final URI outJarURI = URI.create("jar:file:" + outputJarPath);
         try (FileSystem outJar = FileSystems.newFileSystem(outJarURI, new HashMap<String, String>() {{
             put("create", "true");
         }})) {
             final Path outRoot = StreamSupport.stream(outJar.getRootDirectories().spliterator(), false).findFirst().get();
-            try (FileSystem jarFile = FileSystems.newFileSystem(inputJar.value(optionSet), ClassLoader.getSystemClassLoader())) {
+            try (FileSystem jarFile = FileSystems.newFileSystem(inputJar, ClassLoader.getSystemClassLoader())) {
                 Files.walk(StreamSupport.stream(jarFile.getRootDirectories().spliterator(), false).findFirst().orElseThrow(() -> new IllegalArgumentException("The JAR has no root?!")))
                         .forEach(path -> {
                             Path outPath = outJar.getPath(path.toAbsolutePath().toString());
