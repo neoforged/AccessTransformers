@@ -203,7 +203,7 @@ publishing {
     }
     repositories {
         maven {
-            if (project.hasProperty('mavenPassword')) {
+            if (project.hasProperty('forgeMavenPassword')) {
                 credentials {
                     username project.properties.forgeMavenUser
                     password project.properties.forgeMavenPassword
