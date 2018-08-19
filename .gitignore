@@ -1,10 +1,26 @@
+#eclipse
+/bin
+/.settings
+/.classpath
+/.project
 
-/.gradle/
-/.idea/
-/build/
+#In case people make their workspace in the repo
+/eclipse/
+
+#idea
+/.idea
+/classes
+*.iml
+
+#gradle
+/build
+/.gradle
+
+#occupational hazards
+/projects/
+/repo/
+/buildSrc/
 /out/
 /repo/
 /src/generated-sources/
-/forge-deobfed.jar
-/forge-deobfed-new.jar
 /logs/

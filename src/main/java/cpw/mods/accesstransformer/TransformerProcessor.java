@@ -26,6 +26,7 @@ public class TransformerProcessor {
         final OptionParser optionParser = new OptionParser();
         final ArgumentAcceptingOptionSpec<Path> inputJar = optionParser.accepts("inJar", "Input JAR file to apply transformation to").withRequiredArg().withValuesConvertedBy(new PathConverter(PathProperties.FILE_EXISTING)).required();
         final ArgumentAcceptingOptionSpec<Path> atFile = optionParser.accepts("atfile", "Access Transformer File").withRequiredArg().withValuesConvertedBy(new PathConverter(PathProperties.FILE_EXISTING)).required();
+        final ArgumentAcceptingOptionSpec<Path> outputJar = optionParser.accepts("outJar", "Output JAR file").withRequiredArg().withValuesConvertedBy(new PathConverter(PathProperties.NOT_EXISTING)).defaultsTo(null);
 
         final OptionSet optionSet;
         Path inputJarPath;
@@ -35,7 +36,12 @@ public class TransformerProcessor {
             optionSet = optionParser.parse(args);
             inputJarPath = inputJar.value(optionSet).toAbsolutePath();
             final String s = inputJarPath.getFileName().toString();
-            outputJarPath = inputJarPath.resolveSibling(s.substring(0,s.length()-4)+"-new.jar");
+            outputJarPath = outputJar.value(optionSet);
+            if (outputJarPath == null) {
+                outputJarPath = inputJarPath.resolveSibling(s.substring(0,s.length()-4)+"-new.jar");
+            } else {
+                outputJarPath = outputJarPath.toAbsolutePath();
+            }
             atFilePath = atFile.value(optionSet).toAbsolutePath();
         } catch (Exception e) {
             LOGGER.error(AXFORM_MARKER,"Option Parsing Error", e);
