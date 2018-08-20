@@ -11,10 +11,12 @@ import org.objectweb.asm.*;
 import org.objectweb.asm.tree.*;
 
 import java.io.*;
-import java.net.*;
 import java.nio.file.*;
 import java.util.*;
 import java.util.stream.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipOutputStream;
 
 public class TransformerProcessor {
 
@@ -70,54 +72,55 @@ public class TransformerProcessor {
             LOGGER.debug(AXFORM_MARKER,"Loaded transformers {}", path);
         });
 
-        final URI outJarURI = URI.create("jar:file:" + outputJarPath);
-        try (FileSystem outJar = FileSystems.newFileSystem(outJarURI, new HashMap<String, String>() {{
-            put("create", "true");
-        }})) {
-            final Path outRoot = StreamSupport.stream(outJar.getRootDirectories().spliterator(), false).findFirst().get();
-            try (FileSystem jarFile = FileSystems.newFileSystem(inputJar, ClassLoader.getSystemClassLoader())) {
-                Files.walk(StreamSupport.stream(jarFile.getRootDirectories().spliterator(), false).findFirst().orElseThrow(() -> new IllegalArgumentException("The JAR has no root?!")))
-                        .forEach(path -> {
-                            Path outPath = outJar.getPath(path.toAbsolutePath().toString());
-                            if (Files.isDirectory(path)) {
-                                try {
-                                    Files.createDirectory(outPath);
-                                } catch (IOException e) {
-                                    // spammy
-                                }
-                            }
-                            if (path.getNameCount() > 0 && path.getFileName().toString().endsWith(".class")) {
-                                try (InputStream is = Files.newInputStream(path)) {
-                                    final ClassReader classReader = new ClassReader(is);
-                                    final ClassNode cn = new ClassNode();
-                                    classReader.accept(cn, 0);
-                                    final Type type = Type.getType('L'+cn.name.replaceAll("\\.","/")+';');
-                                    if (AccessTransformerEngine.INSTANCE.handlesClass(type)) {
-                                        LOGGER.debug(AXFORM_MARKER,"Transforming class {}", type);
-                                        AccessTransformerEngine.INSTANCE.transform(cn, type);
-                                        ClassWriter cw = new ClassWriter(Opcodes.ASM5);
-                                        cn.accept(cw);
-                                        Files.write(outPath, cw.toByteArray());
-                                    } else {
-                                        LOGGER.debug(AXFORM_MARKER,"Skipping {}", type);
-                                        Files.copy(path, outPath);
-                                    }
-                                } catch (IOException e) {
-                                    LOGGER.error(AXFORM_MARKER,"Reading {}", path, e);
-                                }
-                            } else if (!Files.exists(outPath)){
-                                try {
-                                    Files.copy(path, outPath);
-                                } catch (IOException e) {
-                                    LOGGER.error(AXFORM_MARKER,"Copying {}", path, e);
-                                }
-                            }
-                        });
-            } catch (IOException e) {
-                LOGGER.error(AXFORM_MARKER,"Reading JAR", e);
+        try (FileOutputStream fos = new FileOutputStream(outputJarPath.toFile());
+            ZipOutputStream zout = new ZipOutputStream(fos);
+            ZipFile zin = new ZipFile(inputJar.toFile())) {
+            for(Enumeration<? extends ZipEntry> enu = zin.entries(); enu.hasMoreElements();) {
+                ZipEntry entry = enu.nextElement();
+                if (entry.isDirectory()) {
+                    continue; //IDGAF about directories
+                }
+
+                putEntry(zout, entry);
+                if (entry.getName().endsWith(".class")) {
+                    try (InputStream is = zin.getInputStream(entry)) {
+                        final ClassReader classReader = new ClassReader(is);
+                        final ClassNode cn = new ClassNode();
+                        classReader.accept(cn, 0);
+                        final Type type = Type.getType('L'+cn.name.replaceAll("\\.","/")+';');
+                        if (AccessTransformerEngine.INSTANCE.handlesClass(type)) {
+                            LOGGER.debug(AXFORM_MARKER,"Transforming class {}", type);
+                            AccessTransformerEngine.INSTANCE.transform(cn, type);
+                            ClassWriter cw = new ClassWriter(Opcodes.ASM5);
+                            cn.accept(cw);
+                            zout.write(cw.toByteArray());
+                        } else {
+                            LOGGER.debug(AXFORM_MARKER,"Skipping {}", type);
+                            copy(zin.getInputStream(entry), zout);
+                            zout.closeEntry();
+                        }
+                    }
+                } else {
+                    LOGGER.debug(AXFORM_MARKER,"Copying {}", entry.getName());
+                    copy(zin.getInputStream(entry), zout);
+                }
+                zout.closeEntry();
             }
         } catch (IOException e) {
-            LOGGER.error(AXFORM_MARKER,"Writing JAR", e);
+            LOGGER.error(AXFORM_MARKER,"Processing JAR", e);
+        }
+    }
+
+    private static void putEntry(ZipOutputStream out, ZipEntry old) throws IOException {
+        ZipEntry ent = new ZipEntry(old.getName());
+        ent.setTime(0); //Stabilizes times
+        out.putNextEntry(ent);
+    }
+    public static void copy(InputStream input, OutputStream output) throws IOException {
+        byte[] buf = new byte[0x100];
+        int n = 0;
+        while ((n = input.read(buf)) != -1) {
+            output.write(buf, 0, n);
         }
     }
 }
