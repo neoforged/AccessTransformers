@@ -24,3 +24,5 @@
 /repo/
 /src/generated-sources/
 /logs/
+
+*.tokens

@@ -5,12 +5,12 @@ import cpw.mods.modlauncher.*;
 import org.apache.logging.log4j.*;
 import org.apache.logging.log4j.core.config.*;
 import org.junit.jupiter.api.*;
-import org.powermock.reflect.internal.*;
 
 import java.io.*;
 import java.lang.reflect.*;
 import java.net.*;
 import java.util.concurrent.*;
+import org.powermock.reflect.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -18,6 +18,11 @@ public class TransformationTest {
     @BeforeAll
     public static void setup() {
         Configurator.setRootLevel(Level.DEBUG);
+    }
+
+    @AfterEach
+    public void cleanUp() {
+        Whitebox.setInternalState(AccessTransformerEngine.INSTANCE, "masterList", new AccessTransformerList());
     }
 
     boolean calledback;
@@ -36,7 +41,7 @@ public class TransformationTest {
             transformedClass2 = Class.forName("cpw.mods.accesstransformer.testJar.DefaultClass", true, contextClassLoader);
             return null;
         };
-        AccessTransformerList list = WhiteboxImpl.getInternalState(AccessTransformerEngine.INSTANCE,"masterList");
+        AccessTransformerList list = Whitebox.getInternalState(AccessTransformerEngine.INSTANCE, "masterList");
         list.loadFromResource("test_at.cfg");
         Launcher.main("--version", "1.0", "--launchTarget", "testharness");
         assertTrue(calledback, "We got called back");
