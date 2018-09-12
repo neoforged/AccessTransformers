@@ -15,7 +15,7 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 jacoco {
-    toolVersion = "0.8.1"
+    toolVersion = '0.8.1'
 }
 
 reckon {
@@ -30,14 +30,14 @@ test {
 }
 
 ext.antlr = [
-        grammarpackage: "com.demonwav.primeiron",
+        grammarpackage: 'net.minecraftforge.accesstransformer.generated',
         antlrSource: 'src/main/antlr4',
         destinationDir: "src/generated-sources/java"
 ]
 
 configurations {
     antlr4 {
-        description = "ANTLR4"
+        description = 'ANTLR4'
     }
 }
 
@@ -69,16 +69,16 @@ clean {
 }
 
 ext.sharedManifest = manifest {
-    attributes(["Specification-Title": "accesstransformers",
-                "Specification-Vendor": "Forge",
-                "Specification-Version": "1", // Currently version 1 of the accesstransformer specification
-                "Implementation-Title": project.name,
-                "Implementation-Version": "${version}+${System.getenv("BUILD_NUMBER")?:0}+${grgit.head().getAbbreviatedId(8)}",
-                "Implementation-Vendor" :"Forge",
-                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-                "Git-Commit": grgit.head().getAbbreviatedId(8),
-                "Git-Branch": grgit.branch.current().getName() ],
-            "cpw/mods/accesstransformer/service/")
+    attributes(['Specification-Title': 'accesstransformers',
+                'Specification-Vendor': 'Forge',
+                'Specification-Version': '1', // Currently version 1 of the accesstransformer specification
+                'Implementation-Title': project.name,
+                'Implementation-Version': "${version}+${System.getenv("BUILD_NUMBER")?:0}+${grgit.head().getAbbreviatedId(8)}",
+                'Implementation-Vendor': 'Forge',
+                'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                'Git-Commit': grgit.head().getAbbreviatedId(8),
+                'Git-Branch': grgit.branch.current().getName() ],
+            'net/minecraftforge/accesstransformer/service/')
 }
 
 task mlserviceJar(type: Jar) {
@@ -108,32 +108,32 @@ build.dependsOn mlserviceJar
 repositories {
     mavenCentral()
     maven {
-        name = "forge"
-        url = "http://files.minecraftforge.net/maven"
+        name = 'forge'
+        url = 'http://files.minecraftforge.net/maven'
     }
 }
 
 dependencies {
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.2.+")
-    testImplementation("org.powermock:powermock-core:1.7.+")
-    testImplementation("cpw.mods:modlauncher:0.1+")
-    testImplementation("com.google.code.gson:gson:2.8.5")
+    testImplementation('org.junit.jupiter:junit-jupiter-api:5.2.+')
+    testImplementation('org.powermock:powermock-core:1.7.+')
+    testImplementation('cpw.mods:modlauncher:0.1+')
+    testImplementation('com.google.code.gson:gson:2.8.5')
     testCompileOnly(sourceSets.mlservice.output)
-    testRuntime("org.junit.jupiter:junit-jupiter-engine:5.2.+")
-    testRuntime("org.apache.logging.log4j:log4j-core:2.11.+")
+    testRuntime('org.junit.jupiter:junit-jupiter-engine:5.2.+')
+    testRuntime('org.apache.logging.log4j:log4j-core:2.11.+')
     testRuntime(sourceSets.testJars.runtimeClasspath)
     testRuntime(sourceSets.mlservice.output)
     implementation(sourceSets.antlr4.output)
-    implementation("org.antlr:antlr4-runtime:4.7.1")
-    implementation("net.sf.jopt-simple:jopt-simple:5.0.4")
-    implementation("org.ow2.asm:asm:6.2")
-    implementation("org.ow2.asm:asm-commons:6.2")
-    implementation("org.ow2.asm:asm-tree:6.2")
-    implementation("org.apache.logging.log4j:log4j-api:2.11.+")
-    implementation("cpw.mods:modlauncher:0.1+:api")
-    mlserviceImplementation("cpw.mods:modlauncher:0.1+:api")
+    implementation('org.antlr:antlr4-runtime:4.7.1')
+    implementation('net.sf.jopt-simple:jopt-simple:5.0.4')
+    implementation('org.ow2.asm:asm:6.2')
+    implementation('org.ow2.asm:asm-commons:6.2')
+    implementation('org.ow2.asm:asm-tree:6.2')
+    implementation('org.apache.logging.log4j:log4j-api:2.11.+')
+    implementation('cpw.mods:modlauncher:0.1+:api')
+    mlserviceImplementation('cpw.mods:modlauncher:0.1+:api')
     mlserviceImplementation(sourceSets.main.output)
-    antlr4Compile("org.antlr:antlr4:4.7.1")
+    antlr4Compile('org.antlr:antlr4:4.7.1')
 }
 
 
@@ -144,7 +144,7 @@ shadowJar {
     from sourceSets.mlservice.output
     manifest {
         inheritFrom mlserviceJar.manifest
-        attributes('Main-Class': 'cpw.mods.accesstransformer.TransformerProcessor')
+        attributes('Main-Class': 'net.minecraftforge.accesstransformer.TransformerProcessor')
     }
     dependencies {
         exclude(dependency {
@@ -160,7 +160,7 @@ task fatJar(type: com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
     configurations = shadowJar.configurations
     manifest {
         inheritFrom mlserviceJar.manifest
-        attributes('Main-Class': 'cpw.mods.accesstransformer.TransformerProcessor')
+        attributes('Main-Class': 'net.minecraftforge.accesstransformer.TransformerProcessor')
     }
     dependencies {
         exclude(dependency {
@@ -189,15 +189,15 @@ publishing {
             pom {
                 name = 'Access Transformers'
                 description = 'Transforms class member access based on specification files'
-                url = 'https://github.com/MinecraftForge/accesstransformers'
+                url = 'https://github.com/MinecraftForge/AccessTransformers'
                 scm {
-                    url = 'https://github.com/MinecraftForge/accesstransformers'
-                    connection = 'scm:git:git://github.com/MinecraftForge/accesstransformers.git'
-                    developerConnection = 'scm:git:git@github.com:MinecraftForge/accesstransformers.git'
+                    url = 'https://github.com/MinecraftForge/AccessTransformers'
+                    connection = 'scm:git:git://github.com/MinecraftForge/AccessTransformers.git'
+                    developerConnection = 'scm:git:git@github.com:MinecraftForge/AccessTransformers.git'
                 }
                 issueManagement {
                     system = 'github'
-                    url = 'https://github.com/MinecraftForge/accesstransformers/issues'
+                    url = 'https://github.com/MinecraftForge/AccessTransformers/issues'
                 }
 
                 licenses {
@@ -243,5 +243,5 @@ generateGrammarSource {
     main = 'org.antlr.v4.Tool'
     classpath = configurations.antlr4Compile
     def pkg = antlr.grammarpackage.replaceAll("\\.", "/")
-    args = ["-o", "${antlr.destinationDir}/${pkg}", "-visitor", "-package", antlr.grammarpackage, grammars.files].flatten()
+    args = ['-o', "${antlr.destinationDir}/${pkg}", '-visitor', '-package', antlr.grammarpackage, grammars.files].flatten()
 }
