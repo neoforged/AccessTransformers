@@ -32,8 +32,8 @@ public abstract class Target<T> {
     @Override
     public boolean equals(final Object obj) {
         if (!(obj instanceof Target)) return false;
-        return Objects.equals(className, ((Target)obj).className) &&
-               Objects.equals(getType(), ((Target)obj).getType());
+        return Objects.equals(className, ((Target<?>)obj).className) &&
+               Objects.equals(getType(), ((Target<?>)obj).getType());
     }
 
     @Override

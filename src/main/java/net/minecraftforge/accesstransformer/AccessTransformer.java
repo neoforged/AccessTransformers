@@ -13,12 +13,12 @@ import java.util.stream.*;
 public class AccessTransformer {
     private static final Logger LOGGER = LogManager.getLogger("AXFORM");
     private static final Marker AXFORM_MARKER = MarkerManager.getMarker("AXFORM");
-    private final Target memberTarget;
+    private final Target<?> memberTarget;
     private final Modifier targetAccess;
     private final FinalState targetFinalState;
     private final List<String> origins = new ArrayList<>(1);
 
-    public AccessTransformer(final Target target, final Modifier modifier, final FinalState finalState, String origin, final int lineNumber) {
+    public AccessTransformer(final Target<?> target, final Modifier modifier, final FinalState finalState, String origin, final int lineNumber) {
         this.memberTarget = target;
         this.targetAccess = modifier;
         this.targetFinalState = finalState;
@@ -27,7 +27,7 @@ public class AccessTransformer {
 
     @SuppressWarnings("unchecked")
     public <T> Target<T> getTarget() {
-        return this.memberTarget;
+        return (Target<T>)this.memberTarget;
     }
 
     public AccessTransformer mergeStates(final AccessTransformer at2, final String resourceName) {

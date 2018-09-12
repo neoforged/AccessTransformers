@@ -13,6 +13,9 @@
     "net.minecraft.block.BlockFire METHOD func_176532_c(Lnet/minecraft/block/Block;)I PUBLIC LEAVE forge_at.cfg:14",
     "net.minecraft.block.BlockFire METHOD func_176534_d(Lnet/minecraft/block/Block;)I PUBLIC LEAVE forge_at.cfg:15"
   ],
+  "net.minecraft.block.state.BlockStateContainer": [
+    "net.minecraft.block.state.BlockStateContainer INNERCLASS StateImplementation PUBLIC LEAVE forge_at.cfg:103"
+  ],
   "net.minecraft.block.state.BlockStateContainer$StateImplementation": [
     "net.minecraft.block.state.BlockStateContainer$StateImplementation CLASS PUBLIC LEAVE forge_at.cfg:103",
     "net.minecraft.block.state.BlockStateContainer$StateImplementation FIELD field_177238_c PROTECTED LEAVE forge_at.cfg:105",
@@ -45,7 +48,8 @@
     "net.minecraft.client.gui.GuiButton FIELD field_146121_g PUBLIC LEAVE forge_at.cfg:201"
   ],
   "net.minecraft.client.gui.GuiIngame": [
-    "net.minecraft.client.gui.GuiIngame CLASSWILDCARD PROTECTED LEAVE forge_at.cfg:merge:0, forge_at.cfg:68, forge_at.cfg:69"
+    "net.minecraft.client.gui.GuiIngame FIELDWILDCARD PROTECTED LEAVE forge_at.cfg:68",
+    "net.minecraft.client.gui.GuiIngame METHODWILDCARD PROTECTED LEAVE forge_at.cfg:69"
   ],
   "net.minecraft.client.gui.GuiOverlayDebug": [
     "net.minecraft.client.gui.GuiOverlayDebug METHOD func_181554_e()V PUBLIC LEAVE forge_at.cfg:278"
@@ -138,7 +142,8 @@
     "net.minecraft.entity.EntityTrackerEntry FIELD field_73134_o PUBLIC LEAVE forge_at.cfg:22"
   ],
   "net.minecraft.entity.ai.EntityAITasks": [
-    "net.minecraft.entity.ai.EntityAITasks FIELD field_75782_a PUBLIC LEAVE forge_at.cfg:84"
+    "net.minecraft.entity.ai.EntityAITasks FIELD field_75782_a PUBLIC LEAVE forge_at.cfg:84",
+    "net.minecraft.entity.ai.EntityAITasks INNERCLASS EntityAITaskEntry PUBLIC LEAVE forge_at.cfg:176"
   ],
   "net.minecraft.entity.ai.EntityAITasks$EntityAITaskEntry": [
     "net.minecraft.entity.ai.EntityAITasks$EntityAITaskEntry CLASS PUBLIC LEAVE forge_at.cfg:176"
@@ -160,6 +165,15 @@
   ],
   "net.minecraft.entity.monster.EntityWitherSkeleton": [
     "net.minecraft.entity.monster.EntityWitherSkeleton METHOD func_190727_o()Lnet/minecraft/util/SoundEvent; PROTECTED LEAVE forge_at.cfg:302"
+  ],
+  "net.minecraft.entity.passive.EntityVillager": [
+    "net.minecraft.entity.passive.EntityVillager INNERCLASS EmeraldForItems PUBLIC LEAVE forge_at.cfg:216",
+    "net.minecraft.entity.passive.EntityVillager INNERCLASS ITradeList PUBLIC LEAVE forge_at.cfg:217",
+    "net.minecraft.entity.passive.EntityVillager INNERCLASS ItemAndEmeraldToItem PUBLIC LEAVE forge_at.cfg:218",
+    "net.minecraft.entity.passive.EntityVillager INNERCLASS ListEnchantedBookForEmeralds PUBLIC LEAVE forge_at.cfg:219",
+    "net.minecraft.entity.passive.EntityVillager INNERCLASS ListEnchantedItemForEmeralds PUBLIC LEAVE forge_at.cfg:220",
+    "net.minecraft.entity.passive.EntityVillager INNERCLASS ListItemForEmeralds PUBLIC LEAVE forge_at.cfg:221",
+    "net.minecraft.entity.passive.EntityVillager INNERCLASS PriceInfo PUBLIC LEAVE forge_at.cfg:222"
   ],
   "net.minecraft.entity.passive.EntityVillager$EmeraldForItems": [
     "net.minecraft.entity.passive.EntityVillager$EmeraldForItems CLASS PUBLIC LEAVE forge_at.cfg:216"
@@ -203,6 +217,10 @@
   "net.minecraft.item.crafting.RecipeTippedArrow": [
     "net.minecraft.item.crafting.RecipeTippedArrow CLASS PUBLIC LEAVE forge_at.cfg:99"
   ],
+  "net.minecraft.item.crafting.RecipesBanners": [
+    "net.minecraft.item.crafting.RecipesBanners INNERCLASS RecipeAddPattern PUBLIC LEAVE forge_at.cfg:101",
+    "net.minecraft.item.crafting.RecipesBanners INNERCLASS RecipeDuplicatePattern PUBLIC LEAVE forge_at.cfg:102"
+  ],
   "net.minecraft.item.crafting.RecipesBanners$RecipeAddPattern": [
     "net.minecraft.item.crafting.RecipesBanners$RecipeAddPattern CLASS PUBLIC LEAVE forge_at.cfg:101"
   ],
@@ -217,6 +235,9 @@
   "net.minecraft.item.crafting.ShapelessRecipes": [
     "net.minecraft.item.crafting.ShapelessRecipes FIELD field_77579_b PUBLIC LEAVE forge_at.cfg:47"
   ],
+  "net.minecraft.item.crafting.ShieldRecipes": [
+    "net.minecraft.item.crafting.ShieldRecipes INNERCLASS Decoration PUBLIC LEAVE forge_at.cfg:100"
+  ],
   "net.minecraft.item.crafting.ShieldRecipes$Decoration": [
     "net.minecraft.item.crafting.ShieldRecipes$Decoration CLASS PUBLIC LEAVE forge_at.cfg:100"
   ],
@@ -230,6 +251,7 @@
     "net.minecraft.network.status.server.SPacketServerInfo FIELD field_149297_a PUBLIC LEAVE forge_at.cfg:150"
   ],
   "net.minecraft.potion.PotionHelper": [
+    "net.minecraft.potion.PotionHelper INNERCLASS MixPredicate PUBLIC LEAVE forge_at.cfg:281",
     "net.minecraft.potion.PotionHelper METHOD func_193354_a(Lnet/minecraft/item/ItemPotion;)V PUBLIC LEAVE forge_at.cfg:283",
     "net.minecraft.potion.PotionHelper METHOD func_193355_a(Lnet/minecraft/item/ItemPotion;Lnet/minecraft/item/Item;Lnet/minecraft/item/ItemPotion;)V PUBLIC LEAVE forge_at.cfg:282",
     "net.minecraft.potion.PotionHelper METHOD func_193356_a(Lnet/minecraft/potion/PotionType;Lnet/minecraft/item/crafting/Ingredient;Lnet/minecraft/potion/PotionType;)V PUBLIC LEAVE forge_at.cfg:285",
@@ -253,7 +275,7 @@
     "net.minecraft.tileentity.TileEntityHopper METHOD func_174914_o()Z PUBLIC LEAVE forge_at.cfg:291"
   ],
   "net.minecraft.util.DamageSource": [
-    "net.minecraft.util.DamageSource CLASSWILDCARD PUBLIC LEAVE forge_at.cfg:82"
+    "net.minecraft.util.DamageSource METHODWILDCARD PUBLIC LEAVE forge_at.cfg:82"
   ],
   "net.minecraft.util.EnumFacing": [
     "net.minecraft.util.EnumFacing FIELD field_176754_o PUBLIC LEAVE forge_at.cfg:141",
@@ -296,34 +318,34 @@
     "net.minecraft.world.WorldType FIELD field_77139_a PUBLIC REMOVEFINAL forge_at.cfg:80"
   ],
   "net.minecraft.world.biome.Biome": [
-    "net.minecraft.world.biome.Biome CLASSWILDCARD PUBLIC LEAVE forge_at.cfg:29"
+    "net.minecraft.world.biome.Biome METHODWILDCARD PUBLIC LEAVE forge_at.cfg:29"
   ],
   "net.minecraft.world.biome.Biome$BiomeProperties": [
-    "net.minecraft.world.biome.Biome$BiomeProperties CLASSWILDCARD PUBLIC LEAVE forge_at.cfg:37"
+    "net.minecraft.world.biome.Biome$BiomeProperties METHODWILDCARD PUBLIC LEAVE forge_at.cfg:37"
   ],
   "net.minecraft.world.biome.BiomeDecorator": [
-    "net.minecraft.world.biome.BiomeDecorator CLASSWILDCARD PUBLIC LEAVE forge_at.cfg:51"
+    "net.minecraft.world.biome.BiomeDecorator FIELDWILDCARD PUBLIC LEAVE forge_at.cfg:51"
   ],
   "net.minecraft.world.biome.BiomeForest": [
-    "net.minecraft.world.biome.BiomeForest CLASSWILDCARD PUBLIC LEAVE forge_at.cfg:30"
+    "net.minecraft.world.biome.BiomeForest METHODWILDCARD PUBLIC LEAVE forge_at.cfg:30"
   ],
   "net.minecraft.world.biome.BiomeHills": [
-    "net.minecraft.world.biome.BiomeHills CLASSWILDCARD PUBLIC LEAVE forge_at.cfg:31"
+    "net.minecraft.world.biome.BiomeHills METHODWILDCARD PUBLIC LEAVE forge_at.cfg:31"
   ],
   "net.minecraft.world.biome.BiomeMesa": [
-    "net.minecraft.world.biome.BiomeMesa CLASSWILDCARD PUBLIC LEAVE forge_at.cfg:32"
+    "net.minecraft.world.biome.BiomeMesa METHODWILDCARD PUBLIC LEAVE forge_at.cfg:32"
   ],
   "net.minecraft.world.biome.BiomePlains": [
-    "net.minecraft.world.biome.BiomePlains CLASSWILDCARD PUBLIC LEAVE forge_at.cfg:33"
+    "net.minecraft.world.biome.BiomePlains METHODWILDCARD PUBLIC LEAVE forge_at.cfg:33"
   ],
   "net.minecraft.world.biome.BiomeSavanna": [
-    "net.minecraft.world.biome.BiomeSavanna CLASSWILDCARD PUBLIC LEAVE forge_at.cfg:34"
+    "net.minecraft.world.biome.BiomeSavanna METHODWILDCARD PUBLIC LEAVE forge_at.cfg:34"
   ],
   "net.minecraft.world.biome.BiomeSnow": [
-    "net.minecraft.world.biome.BiomeSnow CLASSWILDCARD PUBLIC LEAVE forge_at.cfg:35"
+    "net.minecraft.world.biome.BiomeSnow METHODWILDCARD PUBLIC LEAVE forge_at.cfg:35"
   ],
   "net.minecraft.world.biome.BiomeTaiga": [
-    "net.minecraft.world.biome.BiomeTaiga CLASSWILDCARD PUBLIC LEAVE forge_at.cfg:36"
+    "net.minecraft.world.biome.BiomeTaiga METHODWILDCARD PUBLIC LEAVE forge_at.cfg:36"
   ],
   "net.minecraft.world.chunk.storage.AnvilChunkLoader": [
     "net.minecraft.world.chunk.storage.AnvilChunkLoader FIELD field_75825_d PUBLIC LEAVE forge_at.cfg:24"
@@ -374,8 +396,14 @@
   "net.minecraft.world.gen.structure.MapGenVillage": [
     "net.minecraft.world.gen.structure.MapGenVillage FIELD field_75055_e PUBLIC REMOVEFINAL forge_at.cfg:41"
   ],
+  "net.minecraft.world.gen.structure.StructureStrongholdPieces": [
+    "net.minecraft.world.gen.structure.StructureStrongholdPieces INNERCLASS Stronghold PUBLIC LEAVE forge_at.cfg:76"
+  ],
   "net.minecraft.world.gen.structure.StructureStrongholdPieces$Stronghold": [
     "net.minecraft.world.gen.structure.StructureStrongholdPieces$Stronghold CLASS PUBLIC LEAVE forge_at.cfg:76"
+  ],
+  "net.minecraft.world.gen.structure.StructureVillagePieces": [
+    "net.minecraft.world.gen.structure.StructureVillagePieces INNERCLASS Village PUBLIC LEAVE forge_at.cfg:88"
   ],
   "net.minecraft.world.gen.structure.StructureVillagePieces$Village": [
     "net.minecraft.world.gen.structure.StructureVillagePieces$Village CLASS PUBLIC LEAVE forge_at.cfg:88"

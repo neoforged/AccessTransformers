@@ -59,8 +59,12 @@ public class AccessTransformerLoadTest {
         );
 
         final String text = new String(Files.readAllBytes(Paths.get(ClassLoader.getSystemClassLoader().getResource("forge_at.cfg.json").toURI())), StandardCharsets.UTF_8);
-        final TreeMap<String, List<String>> expectation = new Gson().fromJson(text, new TypeToken<TreeMap<String, List<String>>>() {}.getType());
+        final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+        final TreeMap<String, List<String>> expectation = GSON.fromJson(text, new TypeToken<TreeMap<String, List<String>>>() {}.getType());
 
-        assertEquals(expectation, testOutput);
+        final String output = GSON.toJson(testOutput);
+        final String expect = GSON.toJson(expectation);
+
+        assertEquals(expect, output);
     }
 }

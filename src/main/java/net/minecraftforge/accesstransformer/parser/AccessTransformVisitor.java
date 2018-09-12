@@ -23,8 +23,14 @@ public class AccessTransformVisitor extends AtParserBaseVisitor<Void> {
         if (ctx.line_value() == null) {
             String className = ctx.class_name().getText();
             String modifier = ctx.keyword().getText();
-            Target target = new ClassTarget(className);
+            Target<?> target = new ClassTarget(className);
             accessTransformers.add(new AccessTransformer(target, ModifierProcessor.modifier(modifier), ModifierProcessor.finalState(modifier), this.origin, ctx.getStart().getLine()));
+
+            int idx = className.lastIndexOf('$'); //Java uses this to identify inner classes, Scala/others use it for synthetics. Either way we should be fine as it will skip over classes that don't exist.
+            if (idx != -1) {
+                String parent = className.substring(0, idx);
+                accessTransformers.add(new AccessTransformer(new InnerClassTarget(parent, className.replace('.', '/')), ModifierProcessor.modifier(modifier), ModifierProcessor.finalState(modifier), this.origin, ctx.getStart().getLine()));
+            }
         }
         return super.visitEntry(ctx);
     }
@@ -37,7 +43,7 @@ public class AccessTransformVisitor extends AtParserBaseVisitor<Void> {
         String methodName = ctx.func_name().getText();
         List<String> args = ctx.argument().stream().map(RuleContext::getText).collect(Collectors.toList());
         String retVal = ctx.return_value().getText();
-        Target target = new MethodTarget(className, methodName, args, retVal);
+        Target<?> target = new MethodTarget(className, methodName, args, retVal);
         accessTransformers.add(new AccessTransformer(target, ModifierProcessor.modifier(modifier), ModifierProcessor.finalState(modifier), this.origin, ctx.getStart().getLine()));
         return super.visitFunction(ctx);
     }
@@ -48,7 +54,7 @@ public class AccessTransformVisitor extends AtParserBaseVisitor<Void> {
         String className = entry.class_name().getText();
         String modifier = entry.keyword().getText();
         String fieldName = ctx.getText();
-        Target target = new FieldTarget(className, fieldName);
+        Target<?> target = new FieldTarget(className, fieldName);
         accessTransformers.add(new AccessTransformer(target, ModifierProcessor.modifier(modifier), ModifierProcessor.finalState(modifier), this.origin, ctx.getStart().getLine()));
         return super.visitField_name(ctx);
     }
@@ -58,7 +64,7 @@ public class AccessTransformVisitor extends AtParserBaseVisitor<Void> {
         final AtParser.EntryContext entry = (AtParser.EntryContext) ctx.getParent().getParent();
         String className = entry.class_name().getText();
         String modifier = entry.keyword().getText();
-        Target target = new WildcardTarget(className, false);
+        Target<?> target = new WildcardTarget(className, false);
         accessTransformers.add(new AccessTransformer(target, ModifierProcessor.modifier(modifier), ModifierProcessor.finalState(modifier), this.origin, ctx.getStart().getLine()));
         return super.visitWildcard_field(ctx);
     }
@@ -68,7 +74,7 @@ public class AccessTransformVisitor extends AtParserBaseVisitor<Void> {
         final AtParser.EntryContext entry = (AtParser.EntryContext) ctx.getParent().getParent();
         String className = entry.class_name().getText();
         String modifier = entry.keyword().getText();
-        Target target = new WildcardTarget(className, true);
+        Target<?> target = new WildcardTarget(className, true);
         accessTransformers.add(new AccessTransformer(target, ModifierProcessor.modifier(modifier), ModifierProcessor.finalState(modifier), this.origin, ctx.getStart().getLine()));
         return super.visitWildcard_method(ctx);
     }

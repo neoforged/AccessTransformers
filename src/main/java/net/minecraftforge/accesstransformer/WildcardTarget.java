@@ -20,17 +20,19 @@ public class WildcardTarget extends Target<ClassNode> {
 
     @Override
     public String toString() {
-        return super.toString() + "WILDCARD";
+        return Objects.toString(getClassName()) + " " + type + "WILDCARD";
     }
 
     @Override
     public boolean equals(final Object obj) {
-        return super.equals(obj) && obj instanceof WildcardTarget;
+        if (!(obj instanceof WildcardTarget)) return false;
+        return super.equals(obj) &&
+                ((WildcardTarget)obj).type == type;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getClassName(), getType(), "WILDCARD");
+        return Objects.hash(getClassName(), getType(), "WILDCARD", type);
     }
 
     @Override
