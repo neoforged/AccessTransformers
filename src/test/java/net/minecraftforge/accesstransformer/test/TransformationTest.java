@@ -30,6 +30,7 @@ public class TransformationTest {
     boolean calledback;
     Class<?> transformedClass;
     Class<?> transformedClass2;
+    Class<?> transformedClass3;
 
     @Test
     public void testTestingLaunchHandler() throws IOException, URISyntaxException {
@@ -41,6 +42,7 @@ public class TransformationTest {
             final ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
             transformedClass = Class.forName("net.minecraftforge.accesstransformer.testJar.ATTestClass", true, contextClassLoader);
             transformedClass2 = Class.forName("net.minecraftforge.accesstransformer.testJar.DefaultClass", true, contextClassLoader);
+            transformedClass3 = Class.forName("net.minecraftforge.accesstransformer.testJar.DefaultClass$Inner", true, contextClassLoader);
             return null;
         };
         AccessTransformerList list = Whitebox.getInternalState(AccessTransformerEngine.INSTANCE, "masterList");
@@ -49,6 +51,7 @@ public class TransformationTest {
         assertTrue(calledback, "We got called back");
         assertAll(
                 ()-> assertTrue(Modifier.isPublic(transformedClass2.getModifiers()), "public class"),
+                ()-> assertTrue(Modifier.isPublic(transformedClass3.getModifiers()), "public inner class"),
                 ()-> assertTrue(Modifier.isProtected(transformedClass.getDeclaredField("privateField").getModifiers()), "public field"),
                 ()-> assertTrue(Modifier.isPublic(transformedClass.getDeclaredField("finalPrivateField").getModifiers()), "public field"),
                 ()-> assertTrue(!Modifier.isFinal(transformedClass.getDeclaredField("finalPrivateField").getModifiers()), "nonfinal field"),
