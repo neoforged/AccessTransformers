@@ -38,7 +38,7 @@ public class TransformerProcessor {
             if (logFile != null) {
                 final LoggerContext logcontext = LoggerContext.getContext(false);
                 logcontext.getConfiguration().getProperties().put("logfilename", logFile);
-                logcontext.getConfiguration().getProperties().put("loglevel", "INFO");
+                logcontext.getConfiguration().getProperties().put("loglevel", "DEBUG");
                 logcontext.updateLoggers();
             }
             inputJarPath = inputJar.value(optionSet).toAbsolutePath();
@@ -55,9 +55,10 @@ public class TransformerProcessor {
             LOGGER.error(AXFORM_MARKER,"Option Parsing Error", e);
             return;
         }
-        LOGGER.debug(AXFORM_MARKER,"Reading from {}", inputJarPath);
-        LOGGER.debug(AXFORM_MARKER,"Writing to {}", outputJarPath);
-        atFilePaths.forEach(path -> LOGGER.debug(AXFORM_MARKER,"Transform file {}", path));
+        LOGGER.info(AXFORM_MARKER, "Access Transformer processor running version {}", TransformerProcessor.class.getPackage().getImplementationVersion());
+        LOGGER.info(AXFORM_MARKER,"Reading from {}", inputJarPath);
+        LOGGER.info(AXFORM_MARKER,"Writing to {}", outputJarPath);
+        atFilePaths.forEach(path -> LOGGER.info(AXFORM_MARKER,"Transform file {}", path));
         try {
             Files.deleteIfExists(outputJarPath);
         } catch (IOException e) {
