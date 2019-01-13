@@ -21,8 +21,11 @@
 /repo/
 /buildSrc/
 /out/
-/repo/
 /src/generated-sources/
 /logs/
 
 *.tokens
+/forge-deobfed-out.jar
+/forge-deobfed-new.jar
+/forge-deobfed.jar
+/out.log

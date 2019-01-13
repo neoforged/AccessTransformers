@@ -1,19 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="WARN">
+    <Properties>
+        <Property name="loglevel">DEBUG</Property>
+        <Property name="logfilename">out.log</Property>
+    </Properties>
     <Appenders>
         <Console name="SysOut" target="SYSTEM_OUT">
             <PatternLayout pattern="[%d{HH:mm:ss}] [%t/%level]: %msg%n"/>
-            <ThresholdFilter level="ERROR" onMatch="DENY" onMismatch="ACCEPT"/>
+            <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
         </Console>
         <Console name="SysErr" target="SYSTEM_ERR">
             <PatternLayout pattern="[%d{HH:mm:ss}] [%t/%level]: %msg%n"/>
             <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
         </Console>
+        <File name="logfile" fileName="${logfilename}" createOnDemand="true" append="false">
+            <PatternLayout pattern="[%d{HH:mm:ss}] [%t/%level]: %msg%n"/>
+            <ThresholdFilter level="${loglevel}" onMatch="ACCEPT" onMismatch="DENY"/>
+        </File>
     </Appenders>
     <Loggers>
-        <Root level="info">
+        <Root level="debug">
             <AppenderRef ref="SysOut"/>
             <AppenderRef ref="SysErr"/>
+            <AppenderRef ref="logfile"/>
         </Root>
     </Loggers>
 </Configuration>
