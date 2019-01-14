@@ -95,6 +95,16 @@ ext.sharedManifest = manifest {
                 'Git-Commit': grgit.head().abbreviatedId,
                 'Git-Branch': grgit.branch.current().getName() ],
             'net/minecraftforge/accesstransformer/service/')
+    attributes(['Specification-Title': 'accesstransformers',
+                'Specification-Vendor': 'Forge',
+                'Specification-Version': '1', // Currently version 1 of the accesstransformer specification
+                'Implementation-Title': project.name,
+                'Implementation-Version': "${version}+${System.getenv("BUILD_NUMBER")?:0}+${grgit.head().abbreviatedId}",
+                'Implementation-Vendor': 'Forge',
+                'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                'Git-Commit': grgit.head().abbreviatedId,
+                'Git-Branch': grgit.branch.current().getName() ],
+            'net/minecraftforge/accesstransformer/')
 }
 
 task mlserviceJar(type: Jar) {

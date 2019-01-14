@@ -3,7 +3,10 @@ package net.minecraftforge.accesstransformer;
 import joptsimple.*;
 import joptsimple.util.*;
 import org.apache.logging.log4j.*;
+import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.FileAppender;
+import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.*;
@@ -25,7 +28,7 @@ public class TransformerProcessor {
         final OptionParser optionParser = new OptionParser();
         final ArgumentAcceptingOptionSpec<Path> inputJar = optionParser.accepts("inJar", "Input JAR file to apply transformation to").withRequiredArg().withValuesConvertedBy(new PathConverter(PathProperties.FILE_EXISTING)).required();
         final ArgumentAcceptingOptionSpec<Path> atFiles = optionParser.acceptsAll(list("atfile", "atFile"), "Access Transformer File").withRequiredArg().withValuesConvertedBy(new PathConverter(PathProperties.FILE_EXISTING)).required();
-        final ArgumentAcceptingOptionSpec<Path> outputJar = optionParser.accepts("outJar", "Output JAR file").withRequiredArg().withValuesConvertedBy(new PathConverter(PathProperties.NOT_EXISTING));
+        final ArgumentAcceptingOptionSpec<Path> outputJar = optionParser.accepts("outJar", "Output JAR file").withRequiredArg().withValuesConvertedBy(new PathConverter(PathProperties.FILE_OVERWRITABLE));
         final ArgumentAcceptingOptionSpec<String> logFilePath = optionParser.accepts("logFile", "Log file for logging").withRequiredArg();
 
         final OptionSet optionSet;
@@ -36,10 +39,19 @@ public class TransformerProcessor {
             optionSet = optionParser.parse(args);
             final String logFile = logFilePath.value(optionSet);
             if (logFile != null) {
+                // configure a custom logfile with debug level logging
                 final LoggerContext logcontext = LoggerContext.getContext(false);
-                logcontext.getConfiguration().getProperties().put("logfilename", logFile);
-                logcontext.getConfiguration().getProperties().put("loglevel", "DEBUG");
+                final Configuration configuration = logcontext.getConfiguration();
+                Appender fileAppender = FileAppender.newBuilder().
+                        withName("logfile").
+                        withFileName(logFile).
+                        withLayout(configuration.getAppender("SysErr").getLayout()).
+                        build();
+                fileAppender.start();
+                configuration.addAppender(fileAppender);
+                configuration.getRootLogger().addAppender(fileAppender, Level.DEBUG, null);
                 logcontext.updateLoggers();
+                LOGGER.info(AXFORM_MARKER,"Writing debug log file {}", logFile);
             }
             inputJarPath = inputJar.value(optionSet).toAbsolutePath();
             final String s = inputJarPath.getFileName().toString();
@@ -56,16 +68,18 @@ public class TransformerProcessor {
             return;
         }
         LOGGER.info(AXFORM_MARKER, "Access Transformer processor running version {}", TransformerProcessor.class.getPackage().getImplementationVersion());
+        LOGGER.info(AXFORM_MARKER, "Command line arguments {}", Arrays.asList(args));
         LOGGER.info(AXFORM_MARKER,"Reading from {}", inputJarPath);
         LOGGER.info(AXFORM_MARKER,"Writing to {}", outputJarPath);
-        atFilePaths.forEach(path -> LOGGER.info(AXFORM_MARKER,"Transform file {}", path));
+        atFilePaths.forEach(path -> LOGGER.info(AXFORM_MARKER,"Transformer file {}", path));
         try {
+            LOGGER.warn("Found existing output jar {}, overwriting", outputJarPath);
             Files.deleteIfExists(outputJarPath);
         } catch (IOException e) {
             LOGGER.error(AXFORM_MARKER,"Deleting existing out JAR", e);
         }
         processJar(inputJarPath, outputJarPath, atFilePaths);
-        LOGGER.debug(AXFORM_MARKER,"Transforming JAR complete {}", outputJarPath);
+        LOGGER.info(AXFORM_MARKER,"JAR transformation complete {}", outputJarPath);
     }
 
     private static List<String> list(String... vars) {
