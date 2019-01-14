@@ -103,11 +103,7 @@ public class TransformerProcessor {
                         .forEach(path -> {
                             Path outPath = outJar.getPath(path.toAbsolutePath().toString());
                             if (Files.isDirectory(path)) {
-                                try {
-                                    Files.createDirectory(outPath);
-                                } catch (IOException e) {
-                                    // spammy
-                                }
+                                // ignore
                             }
                             if (path.getNameCount() > 0 && path.getFileName().toString().endsWith(".class")) {
                                 try (InputStream is = Files.newInputStream(path)) {
