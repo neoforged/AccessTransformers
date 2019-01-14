@@ -102,10 +102,7 @@ public class TransformerProcessor {
                 Files.walk(StreamSupport.stream(jarFile.getRootDirectories().spliterator(), false).findFirst().orElseThrow(() -> new IllegalArgumentException("The JAR has no root?!")))
                         .forEach(path -> {
                             Path outPath = outJar.getPath(path.toAbsolutePath().toString());
-                            if (Files.isDirectory(path)) {
-                                // ignore
-                            }
-                            if (path.getNameCount() > 0 && path.getFileName().toString().endsWith(".class")) {
+                            if (path.getNameCount() > 0 && String.valueOf(path.getFileName()).endsWith(".class")) {
                                 try (InputStream is = Files.newInputStream(path)) {
                                     final ClassReader classReader = new ClassReader(is);
                                     final ClassNode cn = new ClassNode();
