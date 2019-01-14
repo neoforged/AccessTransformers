@@ -165,7 +165,7 @@ dependencies {
 
 // Shadow Jar with antlr embedded
 shadowJar {
-    archiveClassifier = 'shadowed'
+    classifier = 'shadowed'
     from sourceSets.main.output
     from sourceSets.mlservice.output
     manifest {
