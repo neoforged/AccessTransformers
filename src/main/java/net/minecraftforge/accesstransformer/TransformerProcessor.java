@@ -93,7 +93,7 @@ public class TransformerProcessor {
         });
 
         final URI toUri = outputJarPath.toUri();
-        final URI outJarURI = URI.create("jar:"+toUri.getScheme()+":"+toUri.getPath());
+        final URI outJarURI = URI.create("jar:"+toUri.toASCIIString());
         try (FileSystem outJar = FileSystems.newFileSystem(outJarURI, new HashMap<String, String>() {{
             put("create", "true");
         }})) {
