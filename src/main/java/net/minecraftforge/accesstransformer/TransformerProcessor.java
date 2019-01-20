@@ -89,7 +89,7 @@ public class TransformerProcessor {
     private static void processJar(final Path inputJar, final Path outputJarPath, final List<Path> atFilePaths) {
         atFilePaths.forEach(path -> {
             AccessTransformerEngine.INSTANCE.addResource(path, path.getFileName().toString());
-            LOGGER.debug(AXFORM_MARKER,"Loaded transformers {}", path);
+            LOGGER.debug(AXFORM_MARKER,"Loaded access transformer file {}", path);
         });
 
         final URI toUri = outputJarPath.toUri();
