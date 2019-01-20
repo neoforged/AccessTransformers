@@ -11,7 +11,7 @@ import java.util.function.*;
 import java.util.stream.*;
 
 public class AccessTransformer {
-    private static final Logger LOGGER = LogManager.getLogger("AXFORM");
+    private static final Logger LOGGER = LogManager.getLogger();
     private static final Marker AXFORM_MARKER = MarkerManager.getMarker("AXFORM");
     private final Target<?> memberTarget;
     private final Modifier targetAccess;
