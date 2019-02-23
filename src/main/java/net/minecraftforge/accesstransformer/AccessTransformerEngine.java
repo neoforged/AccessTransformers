@@ -15,10 +15,10 @@ public enum AccessTransformerEngine {
 
     private AccessTransformerList masterList = new AccessTransformerList();
 
-    public ClassNode transform(ClassNode clazzNode, final Type classType) {
+    public boolean transform(ClassNode clazzNode, final Type classType) {
         // this should never happen but safety first
         if (!masterList.containsClassTarget(classType)) {
-            return clazzNode;
+            return false;
         }
         // list of methods that may have changed from private visibility, and therefore will need INVOKE_SPECIAL changed to INVOKE_VIRTUAL
         final Set<String> privateChanged = new HashSet<>();
@@ -48,7 +48,7 @@ public enum AccessTransformerEngine {
                     .filter(m -> privateChanged.contains(m.name + m.desc))
                     .forEach(m -> m.setOpcode(Opcodes.INVOKEVIRTUAL)));
         }
-        return clazzNode;
+        return true;
     }
 
     public void addResource(final Path path, final String resourceName) {

@@ -7,6 +7,7 @@ import org.objectweb.asm.*;
 import org.objectweb.asm.tree.*;
 
 import java.nio.file.*;
+import java.util.EnumSet;
 
 @SuppressWarnings("unchecked")
 public class ModLauncherService implements ILaunchPluginService {
@@ -21,17 +22,15 @@ public class ModLauncherService implements ILaunchPluginService {
     }
 
     @Override
-    public ClassNode processClass(final ClassNode classNode, final Type classType) {
+    public boolean processClass(final Phase phase, final ClassNode classNode, final Type classType) {
         return AccessTransformerEngine.INSTANCE.transform(classNode, classType);
     }
 
-    @Override
-    public boolean handlesClass(final Type classType, final boolean isEmpty) {
-        return !isEmpty && AccessTransformerEngine.INSTANCE.handlesClass(classType);
-    }
+    private static final EnumSet<Phase> YAY = EnumSet.of(Phase.BEFORE);
+    private static final EnumSet<Phase> NAY = EnumSet.noneOf(Phase.class);
 
     @Override
-    public Void getExtension() {
-        return null;
+    public EnumSet<Phase> handlesClass(final Type classType, final boolean isEmpty) {
+        return !isEmpty && AccessTransformerEngine.INSTANCE.handlesClass(classType) ? YAY : NAY;
     }
 }

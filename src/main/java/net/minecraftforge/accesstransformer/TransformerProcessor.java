@@ -43,9 +43,9 @@ public class TransformerProcessor {
                 final LoggerContext logcontext = LoggerContext.getContext(false);
                 final Configuration configuration = logcontext.getConfiguration();
                 Appender fileAppender = FileAppender.newBuilder().
-                        withName("logfile").
+                        setName("logfile").
                         withFileName(logFile).
-                        withLayout(configuration.getAppender("SysErr").getLayout()).
+                        setLayout(configuration.getAppender("SysErr").getLayout()).
                         build();
                 fileAppender.start();
                 configuration.addAppender(fileAppender);

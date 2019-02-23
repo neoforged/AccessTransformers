@@ -3,7 +3,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 plugins {
     id 'org.ajoberstar.reckon' version '0.9.0'
     id 'org.ajoberstar.grgit' version '3.0.0'
-    id 'com.github.johnrengelman.shadow' version '4.0.3'
+    id 'com.github.johnrengelman.shadow' version '4.0.4'
     id 'com.github.ben-manes.versions' version '0.20.0'
 }
 apply plugin: 'maven'
@@ -18,7 +18,7 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 jacoco {
-    toolVersion = '0.8.1'
+    toolVersion = '0.8.2'
 }
 
 reckon {
@@ -140,12 +140,12 @@ repositories {
 }
 
 dependencies {
-    testImplementation('org.junit.jupiter:junit-jupiter-api:5.3.+')
+    testImplementation('org.junit.jupiter:junit-jupiter-api:5.4.+')
     testImplementation('org.powermock:powermock-core:2.0+')
-    testImplementation('cpw.mods:modlauncher:0.6+')
+    testImplementation('cpw.mods:modlauncher:0.10.+')
     testImplementation('com.google.code.gson:gson:2.8.5')
     testCompileOnly(sourceSets.mlservice.output)
-    testRuntime('org.junit.jupiter:junit-jupiter-engine:5.3.+')
+    testRuntime('org.junit.jupiter:junit-jupiter-engine:5.4.+')
     testRuntime(sourceSets.testJars.runtimeClasspath)
     testRuntime(sourceSets.mlservice.output)
     implementation(sourceSets.antlr4.output)
@@ -156,8 +156,8 @@ dependencies {
     implementation('org.ow2.asm:asm-tree:6.2')
     implementation('org.apache.logging.log4j:log4j-api:2.11.+')
     implementation('org.apache.logging.log4j:log4j-core:2.11.+')
-    implementation('cpw.mods:modlauncher:0.6+:api')
-    mlserviceImplementation('cpw.mods:modlauncher:0.6+:api')
+    implementation('cpw.mods:modlauncher:0.10.+:api')
+    mlserviceImplementation('cpw.mods:modlauncher:0.10.+:api')
     mlserviceImplementation(sourceSets.main.output)
     antlr4Compile('org.antlr:antlr4:4.7.2')
 }
