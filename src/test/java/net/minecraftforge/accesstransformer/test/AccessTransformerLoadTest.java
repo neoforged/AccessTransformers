@@ -36,7 +36,7 @@ public class AccessTransformerLoadTest {
 
     @Test
     public void testLoadATFromJar() throws IOException, URISyntaxException {
-        final ModLauncherService mls = new ModLauncherService();
+        final AccessTransformerService mls = new AccessTransformerService();
         try (final FileSystem jarFS = FileSystems.newFileSystem(FileSystems.getDefault().getPath("src","test","resources","testatmod.jar"), getClass().getClassLoader())) {
             final Path atPath = jarFS.getPath("META-INF", "forge_at.cfg");
             mls.addResource(atPath,"forge_at.cfg");

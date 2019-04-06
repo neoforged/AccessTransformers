@@ -62,4 +62,8 @@ public enum AccessTransformerEngine {
     public boolean handlesClass(final Type className) {
         return masterList.containsClassTarget(className);
     }
+
+    public void acceptNaming(INameHandler handler) {
+        this.masterList.setNameHandler(handler);
+    }
 }
