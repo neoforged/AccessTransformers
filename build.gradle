@@ -1,12 +1,12 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
-    id 'org.ajoberstar.reckon' version '0.11.0'
-    id 'org.ajoberstar.grgit' version '3.1.1'
-    id 'com.github.johnrengelman.shadow' version '5.1.0'
-    id 'com.github.ben-manes.versions' version '0.22.0'
+    id 'org.ajoberstar.reckon' version '0.12.0'
+    id 'org.ajoberstar.grgit' version '4.0.0'
+    id 'com.github.johnrengelman.shadow' version '5.2.0'
+    id 'com.github.ben-manes.versions' version '0.27.0'
 }
-apply plugin: 'maven'
+
 apply plugin: 'maven-publish'
 apply plugin: 'java-library'
 apply plugin: 'eclipse'
@@ -140,26 +140,26 @@ repositories {
 }
 
 dependencies {
-    testImplementation('org.junit.jupiter:junit-jupiter-api:5.4.+')
+    testImplementation('org.junit.jupiter:junit-jupiter-api:5.5.+')
     testImplementation('org.powermock:powermock-core:2.0+')
-    testImplementation('cpw.mods:modlauncher:3.2.+')
-    testImplementation('com.google.code.gson:gson:2.8.5')
+    testImplementation('cpw.mods:modlauncher:5.0.+')
+    testImplementation('com.google.code.gson:gson:2.8.6')
     testCompileOnly(sourceSets.mlservice.output)
-    testRuntime('org.junit.jupiter:junit-jupiter-engine:5.4.+')
+    testRuntime('org.junit.jupiter:junit-jupiter-engine:5.5.+')
     testRuntime(sourceSets.testJars.runtimeClasspath)
     testRuntime(sourceSets.mlservice.output)
     implementation(sourceSets.antlr4.output)
     implementation('org.antlr:antlr4-runtime:4.7.2')
     implementation('net.sf.jopt-simple:jopt-simple:5.0.4')
-    implementation('org.ow2.asm:asm:6.2')
-    implementation('org.ow2.asm:asm-commons:6.2')
-    implementation('org.ow2.asm:asm-tree:6.2')
-    implementation('org.apache.logging.log4j:log4j-api:2.11.+')
-    implementation('org.apache.logging.log4j:log4j-core:2.11.+')
-    implementation('cpw.mods:modlauncher:3.2.+:api')
-    implementation('cpw.mods:modlauncher:3.2.+')
-    mlserviceImplementation('cpw.mods:modlauncher:3.2.+:api')
-    mlserviceImplementation('cpw.mods:modlauncher:3.2.+')
+    implementation('org.ow2.asm:asm:7.2')
+    implementation('org.ow2.asm:asm-commons:7.2')
+    implementation('org.ow2.asm:asm-tree:7.2')
+    implementation('org.apache.logging.log4j:log4j-api:2.12.+')
+    implementation('org.apache.logging.log4j:log4j-core:2.12.+')
+    implementation('cpw.mods:modlauncher:5.0.+:api')
+    implementation('cpw.mods:modlauncher:5.0.+')
+    mlserviceImplementation('cpw.mods:modlauncher:5.0.+:api')
+    mlserviceImplementation('cpw.mods:modlauncher:5.0.+')
     mlserviceImplementation(sourceSets.main.output)
     antlr4Compile('org.antlr:antlr4:4.7.2')
 }
