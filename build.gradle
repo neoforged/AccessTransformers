@@ -1,7 +1,6 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
-    id 'org.ajoberstar.reckon' version '0.12.0'
     id 'org.ajoberstar.grgit' version '4.0.0'
     id 'com.github.johnrengelman.shadow' version '5.2.0'
     id 'com.github.ben-manes.versions' version '0.27.0'
@@ -21,12 +20,22 @@ jacoco {
     toolVersion = '0.8.2'
 }
 
-reckon {
-    scopeFromProp()
-    stageFromProp('milestone', 'rc', 'final')
+def getVersion = {
+    //TAG-offset-hash
+    def raw = grgit.describe(longDescr: true, tags:true)
+    def desc = (raw == null ? '0.0-0-unknown' : grgit.describe(longDescr: true, tags:true)).split('-') as List
+    def hash = desc.remove(desc.size() - 1)
+    def offset = desc.remove(desc.size() - 1)
+    def tag = desc.join('-')
+    def branch = grgit.branch.current().name
+    if (branch in ['master', 'HEAD'])
+        branch = null
+    if (branch != null && branch.endsWith('.x') && tag.equals(branch.substring(0, branch.length() - 2)))
+        branch = null
+    return "${tag}.${offset}${t -> if (branch != null) t << '-' + branch}".toString()
 }
-
-reckonTagCreate.dependsOn check
+version = getVersion()
+logger.lifecycle('Calculated Version: ' + version)
 
 dependencyUpdates.resolutionStrategy {
     componentSelection { rules ->
@@ -250,11 +259,15 @@ publishing {
     }
     repositories {
         maven {
-            credentials {
-                username project.properties.forgeMavenUser?:'fake'
-                password project.properties.forgeMavenPassword?:'news'
+            if (project.hasProperty('forgeMavenPassword')) {
+                credentials {
+                    username project.properties.forgeMavenUser
+                    password project.properties.forgeMavenPassword
+                }
+                url 'http://files.minecraftforge.net/maven/manage/upload'
+            } else {
+                url 'file://' + rootProject.file('repo').getAbsolutePath()
             }
-            url 'http://files.minecraftforge.net/maven/manage/upload'
         }
     }
 }
