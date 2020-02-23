@@ -54,15 +54,24 @@ public class AccessTransformer {
 
     public enum Modifier {
         PUBLIC(Opcodes.ACC_PUBLIC), PROTECTED(Opcodes.ACC_PROTECTED), DEFAULT(0), PRIVATE(Opcodes.ACC_PRIVATE);
+        private static final Modifier[] values = values();
         private final int accFlag;
 
         Modifier(final int accFlag) {
             this.accFlag = accFlag;
         }
 
+        public static Modifier fromAccess(final int access) {
+            final int clean = access & ~7;
+            for (Modifier m : values)
+                if (m.accFlag == clean)
+                    return m;
+            return Modifier.DEFAULT;
+        }
+
         public int mergeWith(final int access) {
-            final int previousAccess = access & ~7;
-            return previousAccess | accFlag;
+            Modifier other = Modifier.fromAccess(access);
+            return (access & ~7) | (this.ordinal() < other.ordinal() ? this : other).accFlag;
         }
     }
 
