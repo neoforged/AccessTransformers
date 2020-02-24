@@ -54,24 +54,24 @@ public class AccessTransformer {
 
     public enum Modifier {
         PUBLIC(Opcodes.ACC_PUBLIC), PROTECTED(Opcodes.ACC_PROTECTED), DEFAULT(0), PRIVATE(Opcodes.ACC_PRIVATE);
-    	private static final Modifier[] values = values();
+    	private static final Modifier[] lookup = new Modifier[4];
         private final int accFlag;
+
+        static {
+            Arrays.stream(Modifier.values()).forEach(m->lookup[firstBit(m.accFlag)] = m);
+        }
 
         Modifier(final int accFlag) {
             this.accFlag = accFlag;
         }
 
-        public static Modifier fromAccess(final int access) {
-        	final int clean = access & ~7;
-        	for (Modifier m : values)
-        		if (m.accFlag == clean)
-        			return m;
-        	return Modifier.DEFAULT;
+        private static int firstBit(int flags) {
+            return flags == 0 ? 0 : firstBit(flags >>> 1) + 1;
         }
 
         public int mergeWith(final int access) {
-        	Modifier other = Modifier.fromAccess(access);
-        	return (access & ~7) | (this.ordinal() < other.ordinal() ? this : other).accFlag;
+            Modifier floor = lookup[firstBit(access & 7)];
+            return (access & ~7) | values()[Math.min(floor.ordinal(), this.ordinal())].accFlag;
         }
     }
 
