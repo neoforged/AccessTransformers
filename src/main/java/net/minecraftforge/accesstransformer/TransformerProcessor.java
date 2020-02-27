@@ -86,6 +86,7 @@ public class TransformerProcessor {
         return Arrays.asList(vars);
     }
 
+    @SuppressWarnings("serial")
     private static void processJar(final Path inputJar, final Path outputJarPath, final List<Path> atFilePaths) {
         atFilePaths.forEach(path -> {
             AccessTransformerEngine.INSTANCE.addResource(path, path.getFileName().toString());
@@ -97,7 +98,7 @@ public class TransformerProcessor {
         try (FileSystem outJar = FileSystems.newFileSystem(outJarURI, new HashMap<String, String>() {{
             put("create", "true");
         }})) {
-            final Path outRoot = StreamSupport.stream(outJar.getRootDirectories().spliterator(), false).findFirst().get();
+            //final Path outRoot = StreamSupport.stream(outJar.getRootDirectories().spliterator(), false).findFirst().get();
             try (FileSystem jarFile = FileSystems.newFileSystem(inputJar, ClassLoader.getSystemClassLoader())) {
                 Files.walk(StreamSupport.stream(jarFile.getRootDirectories().spliterator(), false).findFirst().orElseThrow(() -> new IllegalArgumentException("The JAR has no root?!")))
                         .forEach(path -> {

@@ -59,8 +59,8 @@ public class TransformationTest {
         );
     }
 
-    private String toBinary(int num)
-    {
+    @SuppressWarnings("unused")
+    private String toBinary(int num) {
         return String.format("%16s", Integer.toBinaryString(num)).replace(' ', '0');
     }
 
