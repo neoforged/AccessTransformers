@@ -1,7 +1,5 @@
 package net.minecraftforge.accesstransformer.test;
 
-import net.minecraftforge.accesstransformer.AccessTransformer;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.Opcodes;
 
