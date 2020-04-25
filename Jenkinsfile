@@ -4,7 +4,7 @@ pipeline {
     agent {
         docker {
             image 'gradle:jdk8'
-            args '-v modlaunchergc:/home/gradle/.gradle/'
+            args '-v accesstransformersgc:/home/gradle/.gradle/'
         }
     }
     environment {
