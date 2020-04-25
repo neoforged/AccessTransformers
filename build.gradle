@@ -1,7 +1,7 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
-    id 'org.ajoberstar.grgit' version '4.0.0'
+    id 'org.ajoberstar.grgit' version '4.0.2'
     id 'com.github.johnrengelman.shadow' version '5.2.0'
     id 'com.github.ben-manes.versions' version '0.27.0'
 }
@@ -20,33 +20,17 @@ jacoco {
     toolVersion = '0.8.2'
 }
 
-def getVersion = {
-    //TAG-offset-hash
-    def raw = grgit.describe(longDescr: true, tags:true)
-    def desc = (raw == null ? '0.0-0-unknown' : grgit.describe(longDescr: true, tags:true)).split('-') as List
-    def hash = desc.remove(desc.size() - 1)
-    def offset = desc.remove(desc.size() - 1)
-    def tag = desc.join('-')
-    def branch = grgit.branch.current().name
-    if (branch in ['master', 'HEAD'])
-        branch = null
-    if (branch != null && branch.endsWith('.x') && tag.equals(branch.substring(0, branch.length() - 2)))
-        branch = null
-    return "${tag}.${offset}${t -> if (branch != null) t << '-' + branch}".toString()
-}
-version = getVersion()
-logger.lifecycle('Calculated Version: ' + version)
+version = grgit.describe(longDescr: true).split('-').with { "${it[0]}.${it[1]}" }
 
-dependencyUpdates.resolutionStrategy {
-    componentSelection { rules ->
-        rules.all { ComponentSelection selection ->
-            boolean rejected = ['alpha', 'beta', 'rc', 'cr', 'm', 'preview'].any { qualifier ->
-                selection.candidate.version ==~ /(?i).*[.-]${qualifier}[.\d-]*/
-            }
-            if (rejected) {
-                selection.reject('Release candidate')
-            }
-        }
+def isNonStable = { String version ->
+    def stableKeyword = ['RELEASE', 'FINAL', 'GA'].any { it -> version.toUpperCase().contains(it) }
+    def regex = /^[0-9,.v-]+(-r)?$/
+    return !stableKeyword && !(version ==~ regex)
+}
+
+dependencyUpdates {
+    rejectVersionIf {
+        isNonStable(it.candidate.version)
     }
 }
 
@@ -95,24 +79,26 @@ clean {
 
 ext.sharedManifest = manifest {
     attributes(['Specification-Title': 'accesstransformers',
-                'Specification-Vendor': 'Forge',
+                'Specification-Vendor': 'forge',
                 'Specification-Version': '1', // Currently version 1 of the accesstransformer specification
                 'Implementation-Title': project.name,
-                'Implementation-Version': "${version}+${System.getenv("BUILD_NUMBER")?:0}+${grgit.head().abbreviatedId}",
-                'Implementation-Vendor': 'Forge',
-                'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                'Implementation-Version': "${project.version}+${System.getenv('BUILD_NUMBER')?:0}+${grgit.branch.current().getName()}.${grgit.head().abbreviatedId}",
+                'Implementation-Vendor': 'forge',
+                'Implementation-Timestamp': java.time.Instant.now().toString(),
                 'Git-Commit': grgit.head().abbreviatedId,
-                'Git-Branch': grgit.branch.current().getName() ],
+                'Git-Branch': grgit.branch.current().getName(),
+                'Build-Number': "${System.getenv('BUILD_NUMBER')?:0}" ],
             'net/minecraftforge/accesstransformer/service/')
     attributes(['Specification-Title': 'accesstransformers',
                 'Specification-Vendor': 'Forge',
                 'Specification-Version': '1', // Currently version 1 of the accesstransformer specification
                 'Implementation-Title': project.name,
-                'Implementation-Version': "${version}+${System.getenv("BUILD_NUMBER")?:0}+${grgit.head().abbreviatedId}",
-                'Implementation-Vendor': 'Forge',
-                'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                'Implementation-Version': "${project.version}+${System.getenv('BUILD_NUMBER')?:0}+${grgit.branch.current().getName()}.${grgit.head().abbreviatedId}",
+                'Implementation-Vendor': 'forge',
+                'Implementation-Timestamp': java.time.Instant.now().toString(),
                 'Git-Commit': grgit.head().abbreviatedId,
-                'Git-Branch': grgit.branch.current().getName() ],
+                'Git-Branch': grgit.branch.current().getName(),
+                'Build-Number': "${System.getenv('BUILD_NUMBER')?:0}" ],
             'net/minecraftforge/accesstransformer/')
 }
 
@@ -149,26 +135,26 @@ repositories {
 }
 
 dependencies {
-    testImplementation('org.junit.jupiter:junit-jupiter-api:5.5.+')
+    testImplementation('org.junit.jupiter:junit-jupiter-api:5.6.+')
     testImplementation('org.powermock:powermock-core:2.0+')
-    testImplementation('cpw.mods:modlauncher:5.0.+')
+    testImplementation('cpw.mods:modlauncher:5.1.+')
     testImplementation('com.google.code.gson:gson:2.8.6')
     testCompileOnly(sourceSets.mlservice.output)
-    testRuntime('org.junit.jupiter:junit-jupiter-engine:5.5.+')
-    testRuntime(sourceSets.testJars.runtimeClasspath)
-    testRuntime(sourceSets.mlservice.output)
+    testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine:5.6.+')
+    testRuntimeOnly(sourceSets.testJars.runtimeClasspath)
+    testRuntimeOnly(sourceSets.mlservice.output)
     implementation(sourceSets.antlr4.output)
     implementation('org.antlr:antlr4-runtime:4.7.2')
     implementation('net.sf.jopt-simple:jopt-simple:5.0.4')
     implementation('org.ow2.asm:asm:7.2')
     implementation('org.ow2.asm:asm-commons:7.2')
     implementation('org.ow2.asm:asm-tree:7.2')
-    implementation('org.apache.logging.log4j:log4j-api:2.12.+')
-    implementation('org.apache.logging.log4j:log4j-core:2.12.+')
-    implementation('cpw.mods:modlauncher:5.0.+:api')
-    implementation('cpw.mods:modlauncher:5.0.+')
-    mlserviceImplementation('cpw.mods:modlauncher:5.0.+:api')
-    mlserviceImplementation('cpw.mods:modlauncher:5.0.+')
+    implementation('org.apache.logging.log4j:log4j-api:2.11.+')
+    implementation('org.apache.logging.log4j:log4j-core:2.11.+')
+    implementation('cpw.mods:modlauncher:5.1.+:api')
+    implementation('cpw.mods:modlauncher:5.1.+')
+    mlserviceImplementation('cpw.mods:modlauncher:5.1.+:api')
+    mlserviceImplementation('cpw.mods:modlauncher:5.1.+')
     mlserviceImplementation(sourceSets.main.output)
     antlr4Compile('org.antlr:antlr4:4.7.2')
 }
@@ -176,7 +162,7 @@ dependencies {
 
 // Shadow Jar with antlr embedded
 shadowJar {
-    classifier = 'shadowed'
+    classifier 'shadowed'
     from sourceSets.main.output
     from sourceSets.mlservice.output
     manifest {
