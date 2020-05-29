@@ -45,6 +45,7 @@ public class AccessTransformVisitor extends AtParserBaseVisitor<Void> {
         String className = entry.class_name().getText();
         String modifier = entry.keyword().getText();
         String methodName = ctx.func_name().getText();
+        className = nameHandler.translateClassName(className);
         methodName = nameHandler.translateMethodName(methodName);
         List<String> args = ctx.argument().stream().map(RuleContext::getText).collect(Collectors.toList());
         String retVal = ctx.return_value().getText();
@@ -59,6 +60,7 @@ public class AccessTransformVisitor extends AtParserBaseVisitor<Void> {
         String className = entry.class_name().getText();
         String modifier = entry.keyword().getText();
         String fieldName = ctx.getText();
+        className = nameHandler.translateClassName(className);
         fieldName = nameHandler.translateFieldName(fieldName);
         Target<?> target = new FieldTarget(className, fieldName);
         accessTransformers.add(new AccessTransformer(target, ModifierProcessor.modifier(modifier), ModifierProcessor.finalState(modifier), this.origin, ctx.getStart().getLine()));
