@@ -15,7 +15,7 @@ for example.
 Any access transform can have ````+f```` or ````-f```` appended to add or remove the ACC_FINAL flag.
 
 ### Targets
-Targets can be classes, methods or fields. The ````*```` wildcard can replace a method or field name.
+Targets can be classes, methods or fields.
 
 Methods are identified by parentheses after the member name.
 
@@ -46,10 +46,6 @@ Example. Transforms the method ````boolean net.minecraft.world.World.isValid(Blo
 public net.minecraft.world.World isValid(Lnet/minecraft/util/math/BlockPos;)Z
 ````
 
-Example. Transforms all methods in class ````net.minecraft.world.biome.Biome```` to public.
-````
-public net.minecraft.world.biome.Biome *()
-````
 #### Field transformer
 ````
 <access modifier> <classname> <fieldname>
@@ -57,8 +53,4 @@ public net.minecraft.world.biome.Biome *()
 Example. Transforms the field ````net.minecraft.world.WorldType.worldTypes```` to public with the final flag removed.
 ````
 public-f net.minecraft.world.WorldType worldTypes
-````
-Example. Transforms all fields in class ````net.minecraft.client.gui.GuiIngame```` to protected.
-````
-protected net.minecraft.client.gui.GuiIngame *
 ````
