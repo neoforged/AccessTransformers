@@ -39,7 +39,7 @@ public class AccessTransformerLoadTest {
         final AccessTransformerService mls = new AccessTransformerService();
         try (final FileSystem jarFS = FileSystems.newFileSystem(FileSystems.getDefault().getPath("src","test","resources","testatmod.jar"), getClass().getClassLoader())) {
             final Path atPath = jarFS.getPath("META-INF", "forge_at.cfg");
-            mls.addResource(atPath,"forge_at.cfg");
+            mls.offerResource(atPath,"forge_at.cfg");
             final AccessTransformerList list = Whitebox.getInternalState(AccessTransformerEngine.INSTANCE, "masterList");
             final Map<String, List<AccessTransformer>> accessTransformers = list.getAccessTransformers();
             testText(accessTransformers);

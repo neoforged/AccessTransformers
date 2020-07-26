@@ -137,7 +137,7 @@ repositories {
 dependencies {
     testImplementation('org.junit.jupiter:junit-jupiter-api:5.6.+')
     testImplementation('org.powermock:powermock-core:2.0+')
-    testImplementation('cpw.mods:modlauncher:5.1.+')
+    testImplementation('cpw.mods:modlauncher:6.1.+')
     testImplementation('com.google.code.gson:gson:2.8.6')
     testCompileOnly(sourceSets.mlservice.output)
     testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine:5.6.+')
@@ -151,10 +151,10 @@ dependencies {
     implementation('org.ow2.asm:asm-tree:7.2')
     implementation('org.apache.logging.log4j:log4j-api:2.11.+')
     implementation('org.apache.logging.log4j:log4j-core:2.11.+')
-    implementation('cpw.mods:modlauncher:5.1.+:api')
-    implementation('cpw.mods:modlauncher:5.1.+')
-    mlserviceImplementation('cpw.mods:modlauncher:5.1.+:api')
-    mlserviceImplementation('cpw.mods:modlauncher:5.1.+')
+    implementation('cpw.mods:modlauncher:6.1.+:api')
+    implementation('cpw.mods:modlauncher:6.1.+')
+    mlserviceImplementation('cpw.mods:modlauncher:6.1.+:api')
+    mlserviceImplementation('cpw.mods:modlauncher:6.1.+')
     mlserviceImplementation(sourceSets.main.output)
     antlr4Compile('org.antlr:antlr4:4.7.2')
 }

@@ -19,13 +19,13 @@ public class AccessTransformerService implements ILaunchPluginService {
     }
 
     @Override
-    public void addResource(final Path path, final String resourceName) {
+    public void offerResource(final Path path, final String resourceName) {
         AccessTransformerEngine.INSTANCE.addResource(path, resourceName);
     }
 
     @Override
-    public boolean processClass(final Phase phase, final ClassNode classNode, final Type classType) {
-        return AccessTransformerEngine.INSTANCE.transform(classNode, classType);
+    public int processClassWithFlags(final Phase phase, final ClassNode classNode, final Type classType, final String reason) {
+        return AccessTransformerEngine.INSTANCE.transform(classNode, classType) ? ComputeFlags.SIMPLE_REWRITE : ComputeFlags.NO_REWRITE;
     }
 
     private static final EnumSet<Phase> YAY = EnumSet.of(Phase.BEFORE);
