@@ -168,7 +168,6 @@ shadowJar {
     manifest {
         inheritFrom mlserviceJar.manifest
         attributes('Main-Class': 'net.minecraftforge.accesstransformer.TransformerProcessor')
-        attributes('Multi-Release': 'true')
     }
     dependencies {
         exclude(dependency {
