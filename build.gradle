@@ -57,7 +57,6 @@ task antlrOutputDir {
 task generateGrammarSource(dependsOn: antlrOutputDir, type: JavaExec)
 
 sourceSets {
-    mlservice
     testJars
     antlr4 {
         java {
@@ -102,15 +101,6 @@ ext.sharedManifest = manifest {
             'net/minecraftforge/accesstransformer/')
 }
 
-task mlserviceJar(type: Jar) {
-    archiveClassifier = 'service'
-    from sourceSets.main.output
-    from sourceSets.mlservice.output
-    manifest = project.manifest {
-        from sharedManifest
-    }
-}
-
 task testsJar(type: Jar) {
     archiveClassifier = 'testsjar'
     from sourceSets.testJars.output
@@ -119,12 +109,10 @@ task testsJar(type: Jar) {
 task sourcesJar(type: Jar) {
     archiveClassifier = 'sources'
     from sourceSets.main.allSource
-    from sourceSets.mlservice.allSource
 }
 
 
 build.dependsOn testsJar
-build.dependsOn mlserviceJar
 
 repositories {
     mavenCentral()
@@ -139,10 +127,8 @@ dependencies {
     testImplementation('org.powermock:powermock-core:2.0+')
     testImplementation('cpw.mods:modlauncher:6.1.+')
     testImplementation('com.google.code.gson:gson:2.8.6')
-    testCompileOnly(sourceSets.mlservice.output)
     testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine:5.6.+')
     testRuntimeOnly(sourceSets.testJars.runtimeClasspath)
-    testRuntimeOnly(sourceSets.mlservice.output)
     implementation(sourceSets.antlr4.output)
     implementation('org.antlr:antlr4-runtime:4.7.2')
     implementation('net.sf.jopt-simple:jopt-simple:5.0.4')
@@ -153,9 +139,6 @@ dependencies {
     implementation('org.apache.logging.log4j:log4j-core:2.11.+')
     implementation('cpw.mods:modlauncher:6.1.+:api')
     implementation('cpw.mods:modlauncher:6.1.+')
-    mlserviceImplementation('cpw.mods:modlauncher:6.1.+:api')
-    mlserviceImplementation('cpw.mods:modlauncher:6.1.+')
-    mlserviceImplementation(sourceSets.main.output)
     antlr4Compile('org.antlr:antlr4:4.7.2')
 }
 
@@ -164,9 +147,8 @@ dependencies {
 shadowJar {
     classifier 'shadowed'
     from sourceSets.main.output
-    from sourceSets.mlservice.output
     manifest {
-        inheritFrom mlserviceJar.manifest
+        inheritFrom jar.manifest
         attributes('Main-Class': 'net.minecraftforge.accesstransformer.TransformerProcessor')
     }
     dependencies {
@@ -179,10 +161,9 @@ shadowJar {
 task fatJar(type: ShadowJar) {
     archiveClassifier = 'fatjar'
     from sourceSets.main.output
-    from sourceSets.mlservice.output
     configurations = shadowJar.configurations
     manifest {
-        inheritFrom mlserviceJar.manifest
+        inheritFrom jar.manifest
         attributes('Main-Class': 'net.minecraftforge.accesstransformer.TransformerProcessor')
         attributes('Multi-Release': 'true')
     }
@@ -197,7 +178,6 @@ artifacts {
     archives jar
     archives sourcesJar
     archives testsJar
-    archives mlserviceJar
     archives shadowJar
     archives fatJar
 }
@@ -209,7 +189,6 @@ publishing {
             artifact sourcesJar
             artifact shadowJar
             artifact fatJar
-            artifact mlserviceJar
             pom {
                 name = 'Access Transformers'
                 description = 'Transforms class member access based on specification files'

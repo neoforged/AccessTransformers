@@ -1,12 +1,11 @@
 package net.minecraftforge.accesstransformer.service;
 
-import cpw.mods.modlauncher.serviceapi.*;
-import net.minecraftforge.accesstransformer.*;
+import cpw.mods.modlauncher.serviceapi.ILaunchPluginService;
+import net.minecraftforge.accesstransformer.AccessTransformerEngine;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.ClassNode;
 
-import org.objectweb.asm.*;
-import org.objectweb.asm.tree.*;
-
-import java.nio.file.*;
+import java.nio.file.Path;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.function.Consumer;
