@@ -3,10 +3,11 @@
 pipeline {
     agent {
         docker {
-            image 'gradle:jdk8'
+            image 'gradle:jdk16'
             args '-v accesstransformersgc:/home/gradle/.gradle/'
         }
     }
+
     environment {
         GRADLE_ARGS = '-Dorg.gradle.daemon.idletimeout=5000'
     }
@@ -14,9 +15,9 @@ pipeline {
     stages {
         stage('buildandtest') {
             steps {
-                sh './gradlew ${GRADLE_ARGS} --refresh-dependencies --continue build test'
-                script {
-                    env.MYVERSION = sh(returnStdout: true, script: './gradlew ${GRADLE_ARGS} properties -q | grep "version:" | awk \'{print $2}\'').trim()
+                withGradle {
+                    sh './gradlew ${GRADLE_ARGS} --refresh-dependencies --continue build test'
+                    gradleVersion(this, 'properties', 'MYVERSION')
                 }
             }
             post {
@@ -32,19 +33,23 @@ pipeline {
                     changeRequest()
                 }
             }
-            environment {
-                FORGE_MAVEN = credentials('forge-maven-forge-user')
-            }
             steps {
-                sh './gradlew ${GRADLE_ARGS} publish -PforgeMavenUser=${FORGE_MAVEN_USR} -PforgeMavenPassword=${FORGE_MAVEN_PSW}'
+                withCredentials([usernamePassword(credentialsId: 'maven-forge-user', usernameVariable: 'MAVEN_USER', passwordVariable: 'MAVEN_PASSWORD')]) {
+                    withGradle {
+                        sh './gradlew ${GRADLE_ARGS} publish'
+                    }
+                }
+            }
+            post {
+                success {
+                    build job: 'filegenerator', parameters: [string(name: 'COMMAND', value: "promote net.minecraftforge:accesstransformers ${env.MYVERSION} latest")], propagate: false, wait: false
+                }
             }
         }
-    }
     post {
         always {
             archiveArtifacts artifacts: 'build/libs/**/*.jar', fingerprint: true
             junit 'build/test-results/*/*.xml'
-            jacoco sourcePattern: '**/src/*/java'
         }
     }
 }

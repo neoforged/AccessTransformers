@@ -1,8 +1,6 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-
 plugins {
     id 'org.ajoberstar.grgit' version '4.1.0'
-    id 'com.github.johnrengelman.shadow' version '5.2.0'
+    id 'com.github.johnrengelman.shadow' version '6.1.0'
     id 'com.github.ben-manes.versions' version '0.39.0'
     id 'antlr'
     id 'org.javamodularity.moduleplugin' version '1.8.3' apply false
@@ -15,12 +13,7 @@ apply plugin: 'org.javamodularity.moduleplugin'
 
 group 'net.minecraftforge'
 
-sourceCompatibility = JavaVersion.VERSION_16
-targetCompatibility = JavaVersion.VERSION_16
-
-//jacoco {
-//    toolVersion = '0.8.2'
-//}
+java.toolchain.languageVersion = JavaLanguageVersion.of(16)
 
 version = grgit.describe(longDescr: true).split('-').with { "${it[0]}.${it[1]}" }
 
@@ -48,7 +41,7 @@ compileJava {
     dependsOn generateGrammarSource
 }
 
-ext.sharedManifest = manifest {
+jar.manifest = manifest {
     attributes(['Specification-Title': 'accesstransformers',
                 'Specification-Vendor': 'forge',
                 'Specification-Version': '1', // Currently version 1 of the accesstransformer specification
@@ -74,12 +67,12 @@ ext.sharedManifest = manifest {
 }
 
 task testsJar(type: Jar) {
-    archiveClassifier = 'testsjar'
+    classifier 'testsjar'
     from sourceSets.testJars.output
 }
 
 task sourcesJar(type: Jar) {
-    archiveClassifier = 'sources'
+    classifier 'sources'
     from sourceSets.main.allSource
 }
 
@@ -102,7 +95,7 @@ dependencies {
     testImplementation('com.google.code.gson:gson:2.8.6')
     testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine:5.7.+')
     testRuntimeOnly(sourceSets.testJars.runtimeClasspath)
-    implementation('org.antlr:antlr4-runtime:4.7.2')
+    implementation('org.antlr:antlr4-runtime:4.9.1')
     implementation('net.sf.jopt-simple:jopt-simple:5.0.4')
     implementation('org.ow2.asm:asm:9.1')
     implementation('org.ow2.asm:asm-commons:9.1')
@@ -110,29 +103,12 @@ dependencies {
     implementation('org.apache.logging.log4j:log4j-api:2.11.+')
     implementation('org.apache.logging.log4j:log4j-core:2.11.+')
     implementation('cpw.mods:modlauncher:9.0.1')
-    antlr('org.antlr:antlr4:4.7.2')
+    antlr('org.antlr:antlr4:4.9.1')
 }
 
 
-// Shadow Jar with antlr embedded
 shadowJar {
-    classifier 'shadowed'
-    from sourceSets.main.output
-    manifest {
-        inheritFrom jar.manifest
-        attributes('Main-Class': 'net.minecraftforge.accesstransformer.TransformerProcessor')
-    }
-    dependencies {
-        exclude(dependency {
-            it.moduleName != 'antlr4-runtime'
-        })
-    }
-}
-
-task fatJar(type: ShadowJar) {
     classifier 'fatjar'
-    from sourceSets.main.output
-    configurations = shadowJar.configurations
     manifest {
         inheritFrom jar.manifest
         attributes('Main-Class': 'net.minecraftforge.accesstransformer.TransformerProcessor')
@@ -150,7 +126,6 @@ artifacts {
     archives sourcesJar
     archives testsJar
     archives shadowJar
-    archives fatJar
 }
 
 publishing {
@@ -158,8 +133,6 @@ publishing {
         mavenJava(MavenPublication) {
             from components.java
             artifact sourcesJar
-            artifact shadowJar
-            artifact fatJar
             pom {
                 name = 'Access Transformers'
                 description = 'Transforms class member access based on specification files'
