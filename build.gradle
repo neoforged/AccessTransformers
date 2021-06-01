@@ -1,16 +1,26 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 plugins {
     id 'org.ajoberstar.grgit' version '4.1.0'
-    id 'com.github.johnrengelman.shadow' version '6.1.0'
-    id 'com.github.ben-manes.versions' version '0.36.0'
+    id 'com.github.johnrengelman.shadow' version '5.2.0'
+    id 'com.github.ben-manes.versions' version '0.39.0'
+    id 'antlr'
+    id 'org.javamodularity.moduleplugin' version '1.8.3' apply false
 }
 
 apply plugin: 'maven-publish'
 apply plugin: 'java-library'
 apply plugin: 'eclipse'
+apply plugin: 'org.javamodularity.moduleplugin'
 
 group 'net.minecraftforge'
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(8)
+sourceCompatibility = JavaVersion.VERSION_16
+targetCompatibility = JavaVersion.VERSION_16
+
+//jacoco {
+//    toolVersion = '0.8.2'
+//}
 
 version = grgit.describe(longDescr: true).split('-').with { "${it[0]}.${it[1]}" }
 
@@ -30,45 +40,15 @@ test {
     useJUnitPlatform()
 }
 
-ext.antlr = [
-	grammarpackage: 'net.minecraftforge.accesstransformer.generated',
-	antlrSource: 'src/main/antlr4',
-	destinationDir: "src/generated-sources/java"
-]
-
-configurations {
-    antlr4 {
-        description = 'ANTLR4'
-    }
-}
-
-task antlrOutputDir {
-    mkdir antlr.destinationDir
-}
-
-task generateGrammarSource(dependsOn: antlrOutputDir, type: JavaExec)
-
 sourceSets {
     testJars
-    antlr4 {
-        java {
-            srcDir {
-                antlr.destinationDir
-            }
-        }
-    }
 }
 
 compileJava {
     dependsOn generateGrammarSource
-    source antlr.destinationDir
 }
 
-clean {
-    delete antlr.destinationDir
-}
-
-jar.manifest = manifest {
+ext.sharedManifest = manifest {
     attributes(['Specification-Title': 'accesstransformers',
                 'Specification-Vendor': 'forge',
                 'Specification-Version': '1', // Currently version 1 of the accesstransformer specification
@@ -107,36 +87,52 @@ task sourcesJar(type: Jar) {
 build.dependsOn testsJar
 
 repositories {
+    mavenLocal()
     mavenCentral()
     maven {
         name = 'forge'
-        url = 'http://files.minecraftforge.net/maven'
+        url = 'https://maven.minecraftforge.net/'
     }
 }
 
 dependencies {
-    testImplementation('org.junit.jupiter:junit-jupiter-api:5.7.0')
+    testImplementation('org.junit.jupiter:junit-jupiter-api:5.7.+')
     testImplementation('org.powermock:powermock-core:2.0+')
-    testImplementation('cpw.mods:modlauncher:6.1.+')
+    testImplementation('cpw.mods:modlauncher:9.0.1')
     testImplementation('com.google.code.gson:gson:2.8.6')
-    testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine:5.7.0')
+    testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine:5.7.+')
     testRuntimeOnly(sourceSets.testJars.runtimeClasspath)
-    implementation(sourceSets.antlr4.output)
-    implementation('org.antlr:antlr4-runtime:4.9.1')
+    implementation('org.antlr:antlr4-runtime:4.7.2')
     implementation('net.sf.jopt-simple:jopt-simple:5.0.4')
-    implementation('org.ow2.asm:asm:9.0')
-    implementation('org.ow2.asm:asm-commons:9.0')
-    implementation('org.ow2.asm:asm-tree:9.0')
-    implementation('org.apache.logging.log4j:log4j-api:2.11.2')
-    implementation('org.apache.logging.log4j:log4j-core:2.11.2')
-    implementation('cpw.mods:modlauncher:6.1.3:api')
-    implementation('cpw.mods:modlauncher:6.1.3')
-    antlr4Compile('org.antlr:antlr4:4.9.1')
+    implementation('org.ow2.asm:asm:9.1')
+    implementation('org.ow2.asm:asm-commons:9.1')
+    implementation('org.ow2.asm:asm-tree:9.1')
+    implementation('org.apache.logging.log4j:log4j-api:2.11.+')
+    implementation('org.apache.logging.log4j:log4j-core:2.11.+')
+    implementation('cpw.mods:modlauncher:9.0.1')
+    antlr('org.antlr:antlr4:4.7.2')
 }
 
 
+// Shadow Jar with antlr embedded
 shadowJar {
+    classifier 'shadowed'
+    from sourceSets.main.output
+    manifest {
+        inheritFrom jar.manifest
+        attributes('Main-Class': 'net.minecraftforge.accesstransformer.TransformerProcessor')
+    }
+    dependencies {
+        exclude(dependency {
+            it.moduleName != 'antlr4-runtime'
+        })
+    }
+}
+
+task fatJar(type: ShadowJar) {
     classifier 'fatjar'
+    from sourceSets.main.output
+    configurations = shadowJar.configurations
     manifest {
         inheritFrom jar.manifest
         attributes('Main-Class': 'net.minecraftforge.accesstransformer.TransformerProcessor')
@@ -154,6 +150,7 @@ artifacts {
     archives sourcesJar
     archives testsJar
     archives shadowJar
+    archives fatJar
 }
 
 publishing {
@@ -161,6 +158,8 @@ publishing {
         mavenJava(MavenPublication) {
             from components.java
             artifact sourcesJar
+            artifact shadowJar
+            artifact fatJar
             pom {
                 name = 'Access Transformers'
                 description = 'Transforms class member access based on specification files'
@@ -197,12 +196,15 @@ publishing {
     }
     repositories {
         maven {
-            if (project.hasProperty('forgeMavenPassword')) {
-                credentials {
-                    username project.properties.forgeMavenUser
-                    password project.properties.forgeMavenPassword
+            if (System.env.MAVEN_USER) {
+                url "https://maven.minecraftforge.net/releases/"
+                authentication {
+                    basic(BasicAuthentication)
                 }
-                url 'https://files.minecraftforge.net/maven/manage/upload'
+                credentials {
+                    username = System.env.MAVEN_USER ?: 'not'
+                    password = System.env.MAVEN_PASSWORD ?: 'set'
+                }
             } else {
                 url 'file://' + rootProject.file('repo').getAbsolutePath()
             }
@@ -211,12 +213,6 @@ publishing {
 }
 
 generateGrammarSource {
-    description = 'Generates Java sources from ANTLR4 grammars.'
-    inputs.dir file(antlr.antlrSource)
-    outputs.dir file(antlr.destinationDir)
-    def grammars = fileTree(antlr.antlrSource).include('**/*.g4')
-    main = 'org.antlr.v4.Tool'
-    classpath = configurations.antlr4Compile
-    def pkg = antlr.grammarpackage.replaceAll("\\.", "/")
-    args = ["-o", "${antlr.destinationDir}/${pkg}", '-visitor', '-package', antlr.grammarpackage, grammars.files].flatten()
+    arguments += ['-visitor', '-package', 'net.minecraftforge.accesstransformer.generated']
+    outputDirectory = file("${project.buildDir}/generated-src/antlr/main/net/minecraftforge/accesstransformer/generated/")
 }
