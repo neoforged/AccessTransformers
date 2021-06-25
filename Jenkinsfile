@@ -1,4 +1,4 @@
-@Library('forge-shared-library')_
+@Library(value='forge-shared-library', changelog=false)_
 
 pipeline {
     agent {
@@ -36,7 +36,7 @@ pipeline {
             steps {
                 withGradle {
                     sh './gradlew ${GRADLE_ARGS} --refresh-dependencies --continue build test'
-                    gradleVersion(this, 'properties', 'MYVERSION')
+                    gradleVersion(this)
                 }
             }
             post {
