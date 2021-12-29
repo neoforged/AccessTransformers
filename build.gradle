@@ -3,7 +3,7 @@ plugins {
     id 'com.github.ben-manes.versions' version '0.39.0'
     id 'antlr'
     id 'org.javamodularity.moduleplugin' version '1.8.3' apply false
-    id 'net.minecraftforge.gradleutils' version '1.+'
+    id 'net.minecraftforge.gradleutils' version '2.+'
 }
 
 apply plugin: 'maven-publish'
@@ -80,6 +80,9 @@ task sourcesJar(type: Jar) {
     from sourceSets.main.allSource
 }
 
+changelog {
+    fromTag '1.0'
+}
 
 build.dependsOn testsJar
 
@@ -178,20 +181,7 @@ publishing {
         }
     }
     repositories {
-        maven {
-            if (System.env.MAVEN_USER) {
-                url "https://maven.minecraftforge.net/releases/"
-                authentication {
-                    basic(BasicAuthentication)
-                }
-                credentials {
-                    username = System.env.MAVEN_USER ?: 'not'
-                    password = System.env.MAVEN_PASSWORD ?: 'set'
-                }
-            } else {
-                url 'file://' + rootProject.file('repo').getAbsolutePath()
-            }
-        }
+        maven gradleutils.getPublishingForgeMaven()
     }
 }
 
