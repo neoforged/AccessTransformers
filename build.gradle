@@ -1,5 +1,5 @@
 plugins {
-    id 'com.github.johnrengelman.shadow' version '6.1.0'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
     id 'com.github.ben-manes.versions' version '0.39.0'
     id 'antlr'
     id 'org.javamodularity.moduleplugin' version '1.8.3' apply false
@@ -46,22 +46,22 @@ compileJava {
 
 jar.manifest = manifest {
     attributes(['Specification-Title': 'accesstransformers',
-                'Specification-Vendor': 'forge',
+                'Specification-Vendor': 'neoforged',
                 'Specification-Version': '1', // Currently version 1 of the accesstransformer specification
                 'Implementation-Title': project.name,
                 'Implementation-Version': "${project.version}+${System.getenv('BUILD_NUMBER')?:0}+${gradleutils.gitInfo.branch}.${gradleutils.gitInfo.abbreviatedId}",
-                'Implementation-Vendor': 'forge',
+                'Implementation-Vendor': 'neoforged',
                 'Implementation-Timestamp': java.time.Instant.now().toString(),
                 'Git-Commit': gradleutils.gitInfo.abbreviatedId,
                 'Git-Branch': gradleutils.gitInfo.branch,
                 'Build-Number': "${System.getenv('BUILD_NUMBER')?:0}" ],
             'net/minecraftforge/accesstransformer/service/')
     attributes(['Specification-Title': 'accesstransformers',
-                'Specification-Vendor': 'Forge',
+                'Specification-Vendor': 'neoforged',
                 'Specification-Version': '1', // Currently version 1 of the accesstransformer specification
                 'Implementation-Title': project.name,
                 'Implementation-Version': "${project.version}+${System.getenv('BUILD_NUMBER')?:0}+${gradleutils.gitInfo.branch}.${gradleutils.gitInfo.abbreviatedId}",
-                'Implementation-Vendor': 'forge',
+                'Implementation-Vendor': 'neoforged',
                 'Implementation-Timestamp': java.time.Instant.now().toString(),
                 'Git-Commit': gradleutils.gitInfo.abbreviatedId,
                 'Git-Branch': gradleutils.gitInfo.branch,
@@ -69,12 +69,12 @@ jar.manifest = manifest {
             'net/minecraftforge/accesstransformer/')
 }
 
-task testsJar(type: Jar) {
+tasks.register('testsJar', Jar) {
     archiveClassifier = 'testsjar'
     from sourceSets.testJars.output
 }
 
-task sourcesJar(type: Jar) {
+tasks.register('sourcesJar', Jar) {
     dependsOn generateGrammarSource
     archiveClassifier = 'sources'
     from sourceSets.main.allSource
@@ -90,26 +90,33 @@ repositories {
     mavenLocal()
     mavenCentral()
     maven {
-        name = 'forge'
-        url = 'https://maven.minecraftforge.net/'
+        name = 'neoforged'
+        url = 'https://maven.neoforged.net/releases/'
     }
 }
 
+configurations {
+    api {
+        extendsFrom = extendsFrom.findAll { it != configurations.antlr }
+    }
+    compileOnly.extendsFrom antlr
+}
+
 dependencies {
-    testImplementation('org.junit.jupiter:junit-jupiter-api:5.7.+')
+    testImplementation('org.junit.jupiter:junit-jupiter-api:5.7.2')
     testImplementation('org.powermock:powermock-core:2.0+')
     testImplementation('cpw.mods:modlauncher:9.0.4')
     testImplementation('com.google.code.gson:gson:2.8.6')
     testImplementation(sourceSets.modlauncherImpl.output)
-    testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine:5.7.+')
+    testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine:5.7.2')
     testRuntimeOnly(sourceSets.testJars.runtimeClasspath)
     implementation('org.antlr:antlr4-runtime:4.9.1')
     implementation('net.sf.jopt-simple:jopt-simple:5.0.4')
     implementation('org.ow2.asm:asm:9.1')
     implementation('org.ow2.asm:asm-commons:9.1')
     implementation('org.ow2.asm:asm-tree:9.1')
-    implementation('org.apache.logging.log4j:log4j-api:2.11.+')
-    implementation('org.apache.logging.log4j:log4j-core:2.11.+')
+    implementation('org.apache.logging.log4j:log4j-api:2.11.2')
+    implementation('org.apache.logging.log4j:log4j-core:2.11.2')
     modlauncherImplImplementation('cpw.mods:modlauncher:9.0.4')
     modlauncherImplImplementation(sourceSets.main.output)
     antlr('org.antlr:antlr4:4.9.1')
@@ -120,7 +127,7 @@ jar {
 }
 
 shadowJar {
-    classifier 'fatjar'
+    archiveClassifier = 'fatjar'
     exclude '**/Log4j2Plugins.dat'
     manifest {
         inheritFrom jar.manifest
@@ -149,15 +156,15 @@ publishing {
             pom {
                 name = 'Access Transformers'
                 description = 'Transforms class member access based on specification files'
-                url = 'https://github.com/MinecraftForge/AccessTransformers'
+                url = 'https://github.com/neoforged/AccessTransformers'
                 scm {
-                    url = 'https://github.com/MinecraftForge/AccessTransformers'
-                    connection = 'scm:git:git://github.com/MinecraftForge/AccessTransformers.git'
-                    developerConnection = 'scm:git:git@github.com:MinecraftForge/AccessTransformers.git'
+                    url = 'https://github.com/neoforged/AccessTransformers'
+                    connection = 'scm:git:git://github.com/neoforged/AccessTransformers.git'
+                    developerConnection = 'scm:git:git@github.com:neoforged/AccessTransformers.git'
                 }
                 issueManagement {
                     system = 'github'
-                    url = 'https://github.com/MinecraftForge/AccessTransformers/issues'
+                    url = 'https://github.com/neoforged/AccessTransformers/issues'
                 }
 
                 licenses {
