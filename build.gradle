@@ -2,14 +2,14 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '8.1.1'
     id 'com.github.ben-manes.versions' version '0.39.0'
     id 'antlr'
-    id 'net.minecraftforge.gradleutils' version '2.+'
+    id 'net.neoforged.gradleutils' version '2.+'
 }
 
 apply plugin: 'maven-publish'
 apply plugin: 'java-library'
 apply plugin: 'eclipse'
 
-group 'net.minecraftforge'
+group 'net.neoforged'
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
@@ -49,7 +49,7 @@ jar.manifest = manifest {
                 'Git-Commit': gradleutils.gitInfo.abbreviatedId,
                 'Git-Branch': gradleutils.gitInfo.branch,
                 'Build-Number': "${System.getenv('BUILD_NUMBER')?:0}" ],
-            'net/minecraftforge/accesstransformer/service/')
+            'net/neoforged/accesstransformer/service/')
     attributes(['Specification-Title': 'accesstransformers',
                 'Specification-Vendor': 'neoforged',
                 'Specification-Version': '1', // Currently version 1 of the accesstransformer specification
@@ -60,7 +60,7 @@ jar.manifest = manifest {
                 'Git-Commit': gradleutils.gitInfo.abbreviatedId,
                 'Git-Branch': gradleutils.gitInfo.branch,
                 'Build-Number': "${System.getenv('BUILD_NUMBER')?:0}" ],
-            'net/minecraftforge/accesstransformer/')
+            'net/neoforged/accesstransformer/')
 }
 
 tasks.register('testsJar', Jar) {
@@ -75,7 +75,7 @@ tasks.register('sourcesJar', Jar) {
 }
 
 changelog {
-    fromTag '1.0'
+    fromTag '9.0'
 }
 
 build.dependsOn testsJar
@@ -155,7 +155,7 @@ shadowJar {
     exclude '**/Log4j2Plugins.dat'
     manifest {
         inheritFrom jar.manifest
-        attributes('Main-Class': 'net.minecraftforge.accesstransformer.TransformerProcessor')
+        attributes('Main-Class': 'net.neoforged.accesstransformer.TransformerProcessor')
         attributes('Multi-Release': 'true')
     }
     dependencies {
@@ -218,6 +218,6 @@ publishing {
 }
 
 generateGrammarSource {
-    arguments += ['-visitor', '-package', 'net.minecraftforge.accesstransformer.generated']
-    outputDirectory = file("${project.buildDir}/generated-src/antlr/main/net/minecraftforge/accesstransformer/generated/")
+    arguments += ['-visitor', '-package', 'net.neoforged.accesstransformer.generated']
+    outputDirectory = file("${project.buildDir}/generated-src/antlr/main/net/neoforged/accesstransformer/generated/")
 }
