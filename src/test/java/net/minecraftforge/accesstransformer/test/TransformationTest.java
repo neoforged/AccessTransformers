@@ -1,20 +1,20 @@
 package net.minecraftforge.accesstransformer.test;
 
-import cpw.mods.modlauncher.*;
+import cpw.mods.bootstraplauncher.BootstrapLauncher;
+import cpw.mods.modlauncher.TransformingClassLoader;
+import cpw.mods.modlauncher.api.ServiceRunner;
 import net.minecraftforge.accesstransformer.AccessTransformerEngine;
-import net.minecraftforge.accesstransformer.parser.*;
+import net.minecraftforge.accesstransformer.parser.AccessTransformerList;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.config.Configurator;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.powermock.reflect.Whitebox;
 
-import org.apache.logging.log4j.*;
-import org.apache.logging.log4j.core.config.*;
-import org.junit.jupiter.api.*;
-
-import java.io.*;
-import java.lang.reflect.*;
-import java.net.*;
-import java.util.concurrent.*;
-import org.powermock.reflect.*;
+import java.lang.reflect.Modifier;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TransformationTest {
     @BeforeAll
@@ -22,52 +22,62 @@ public class TransformationTest {
         Configurator.setRootLevel(Level.DEBUG);
     }
 
-    @AfterEach
-    public void cleanUp() {
-        Whitebox.setInternalState(AccessTransformerEngine.INSTANCE, "masterList", new AccessTransformerList());
-    }
-
-    boolean calledback;
-    Class<?> transformedClass;
-    Class<?> transformedClass2;
-    Class<?> transformedClass3;
-
     @Test
-    public void testTestingLaunchHandler() throws IOException, URISyntaxException {
-        System.setProperty("test.harness", "build/classes/java/testJars");
-        System.setProperty("test.harness.callable", "net.minecraftforge.accesstransformer.test.TransformationTest$TestCallback");
-        calledback = false;
-        TestCallback.callable = () -> {
-            calledback = true;
-            final ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-            transformedClass = Class.forName("net.minecraftforge.accesstransformer.testJar.ATTestClass", true, contextClassLoader);
-            transformedClass2 = Class.forName("net.minecraftforge.accesstransformer.testJar.DefaultClass", true, contextClassLoader);
-            transformedClass3 = Class.forName("net.minecraftforge.accesstransformer.testJar.DefaultClass$Inner", true, contextClassLoader);
-            return null;
-        };
-        AccessTransformerList list = Whitebox.getInternalState(AccessTransformerEngine.INSTANCE, "masterList");
-        list.loadFromResource("test_at.cfg");
-        Launcher.main("--version", "1.0", "--launchTarget", "testharness");
-        assertTrue(calledback, "We got called back");
-        assertAll(
-                ()-> assertTrue(Modifier.isPublic(transformedClass2.getModifiers()), "public class"),
-                ()-> assertTrue(Modifier.isPublic(transformedClass3.getModifiers()), "public inner class"),
-                ()-> assertTrue(Modifier.isProtected(transformedClass.getDeclaredField("privateField").getModifiers()), "public field"),
-                ()-> assertTrue(Modifier.isPublic(transformedClass.getDeclaredField("finalPrivateField").getModifiers()), "public field"),
-                ()-> assertTrue(!Modifier.isFinal(transformedClass.getDeclaredField("finalPrivateField").getModifiers()), "nonfinal field"),
-                ()-> assertTrue(Modifier.isPublic(transformedClass.getDeclaredMethod("privateMethod").getModifiers()), "nonfinal method")
-        );
-    }
+    public void testTransformation() throws Throwable {
+        var originalClassLoader = Thread.currentThread().getContextClassLoader();
 
-    @SuppressWarnings("unused")
-    private String toBinary(int num) {
-        return String.format("%16s", Integer.toBinaryString(num)).replace(' ', '0');
+        System.setProperty("test.harness.game", "build/classes/java/testJars");
+        System.setProperty("test.harness.callable", TestCallback.class.getName());
+
+        try {
+            BootstrapLauncher.main("--version", "1.0", "--launchTarget", "testharness");
+
+            var transformingClassLoader = Thread.currentThread().getContextClassLoader();
+            var mcBootClassLoader = transformingClassLoader.getClass().getClassLoader();
+
+            assertEquals("TransformingClassLoader", transformingClassLoader.getClass().getSimpleName());
+            assertEquals("ModuleClassLoader", mcBootClassLoader.getClass().getSimpleName());
+
+            var testLogic = Class.forName("net.minecraftforge.accesstransformer.test.TransformationTest$TestLogic", true, mcBootClassLoader);
+            testLogic.getDeclaredMethod("doTest", ClassLoader.class).invoke(null, transformingClassLoader);
+        } finally {
+            Thread.currentThread().setContextClassLoader(originalClassLoader);
+        }
     }
 
     public static class TestCallback {
-        private static Callable<Void> callable;
-        public static Callable<Void> supplier() {
-            return callable;
+        public static ServiceRunner supplier() {
+            // Return a NO-OP ServiceRunner to continue JUnit testing.
+            return ServiceRunner.NOOP;
+        }
+    }
+
+    /**
+     * Separated test logic - this needs to run on the boot layer.
+     */
+    public static class TestLogic {
+        static Class<?> transformedClass;
+        static Class<?> transformedClass2;
+        static Class<?> transformedClass3;
+
+        public static void doTest(ClassLoader transformingClassLoader) {
+            AccessTransformerList list = Whitebox.getInternalState(AccessTransformerEngine.INSTANCE, "masterList");
+            assertDoesNotThrow(() -> list.loadFromResource("test_at.cfg"));
+
+            assertDoesNotThrow(() -> {
+                transformedClass = Class.forName("net.minecraftforge.accesstransformer.testJar.ATTestClass", true, transformingClassLoader);
+                transformedClass2 = Class.forName("net.minecraftforge.accesstransformer.testJar.DefaultClass", true, transformingClassLoader);
+                transformedClass3 = Class.forName("net.minecraftforge.accesstransformer.testJar.DefaultClass$Inner", true, transformingClassLoader);
+            });
+
+            assertAll(
+                    () -> assertTrue(Modifier.isPublic(transformedClass2.getModifiers()), "public class"),
+                    () -> assertTrue(Modifier.isPublic(transformedClass3.getModifiers()), "public inner class"),
+                    () -> assertTrue(Modifier.isProtected(transformedClass.getDeclaredField("privateField").getModifiers()), "public field"),
+                    () -> assertTrue(Modifier.isPublic(transformedClass.getDeclaredField("finalPrivateField").getModifiers()), "public field"),
+                    () -> assertTrue(!Modifier.isFinal(transformedClass.getDeclaredField("finalPrivateField").getModifiers()), "nonfinal field"),
+                    () -> assertTrue(Modifier.isPublic(transformedClass.getDeclaredMethod("privateMethod").getModifiers()), "nonfinal method")
+            );
         }
     }
 }

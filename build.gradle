@@ -2,18 +2,16 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '8.1.1'
     id 'com.github.ben-manes.versions' version '0.39.0'
     id 'antlr'
-    id 'org.javamodularity.moduleplugin' version '1.8.3' apply false
     id 'net.minecraftforge.gradleutils' version '2.+'
 }
 
 apply plugin: 'maven-publish'
 apply plugin: 'java-library'
 apply plugin: 'eclipse'
-apply plugin: 'org.javamodularity.moduleplugin'
 
 group 'net.minecraftforge'
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(16)
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 version = gradleutils.getTagOffsetVersion()
 println('Version: ' + version)
@@ -28,10 +26,6 @@ dependencyUpdates {
     rejectVersionIf {
         isNonStable(it.candidate.version)
     }
-}
-
-test {
-    useJUnitPlatform()
 }
 
 sourceSets {
@@ -105,11 +99,12 @@ configurations {
 dependencies {
     testImplementation('org.junit.jupiter:junit-jupiter-api:5.7.2')
     testImplementation('org.powermock:powermock-core:2.0+')
-    testImplementation('cpw.mods:modlauncher:9.0.4')
+    testImplementation('cpw.mods:modlauncher:10.1.7')
+    testImplementation('cpw.mods:bootstraplauncher:1.1.5')
+    testImplementation('cpw.mods:securejarhandler:2.1.11')
     testImplementation('com.google.code.gson:gson:2.8.6')
     testImplementation(sourceSets.modlauncherImpl.output)
     testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine:5.7.2')
-    testRuntimeOnly(sourceSets.testJars.runtimeClasspath)
     implementation('org.antlr:antlr4-runtime:4.9.1')
     implementation('net.sf.jopt-simple:jopt-simple:5.0.4')
     implementation('org.ow2.asm:asm:9.1')
@@ -117,10 +112,39 @@ dependencies {
     implementation('org.ow2.asm:asm-tree:9.1')
     implementation('org.apache.logging.log4j:log4j-api:2.11.2')
     implementation('org.apache.logging.log4j:log4j-core:2.11.2')
-    modlauncherImplImplementation('cpw.mods:modlauncher:9.0.4')
+    modlauncherImplImplementation('cpw.mods:modlauncher:10.1.7')
     modlauncherImplImplementation(sourceSets.main.output)
     antlr('org.antlr:antlr4:4.9.1')
 }
+
+// Build the module path manually because Gradle won't do it for non-modular projects.
+// Feel free to replace by a better way, I just wanted the tests to run.
+import java.util.stream.Collectors
+def buildModulePath() {
+    def deps = [
+            "asm-9.5.jar",
+            "asm-tree-9.5.jar",
+            "bootstraplauncher-1.1.5.jar",
+            "modlauncher-10.1.7.jar",
+            "securejarhandler-2.1.11.jar",
+    ]
+    return deps.stream().map({ dep ->
+        project.configurations.testRuntimeClasspath.find({
+            return it.name.equals(dep)
+        }).getParent()
+    }).collect(Collectors.joining(File.pathSeparator))
+}
+
+test {
+    useJUnitPlatform()
+    forkEvery 1
+    jvmArgs(
+            '--add-opens', 'java.base/java.lang.invoke=cpw.mods.securejarhandler',
+            '-p', buildModulePath()
+    )
+}
+
+test.dependsOn(testJarsClasses)
 
 jar {
     from sourceSets.modlauncherImpl.output
@@ -153,6 +177,7 @@ publishing {
         mavenJava(MavenPublication) {
             from components.java
             artifact sourcesJar
+            artifactId = "accesstransformers"
             pom {
                 name = 'Access Transformers'
                 description = 'Transforms class member access based on specification files'
