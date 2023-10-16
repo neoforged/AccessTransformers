@@ -27,36 +27,45 @@ version = "2021.2"
 
 project {
 
-    buildType(PullRequests)
     buildType(Build)
+    buildType(BuildSecondaryBranches)
+    buildType(PullRequests)
 
     params {
-        text("git_main_branch", "master", label = "Git Main Branch", description = "The git main or default branch to use in VCS operations.", display = ParameterDisplay.HIDDEN, allowEmpty = false)
-        text("github_repository_name", "accesstransformers", label = "The github repository name. Used to connect to it in VCS Roots.", description = "This is the repository slug on github. So for example `accesstransformers` or `MinecraftForge`. It is interpolated into the global VCS Roots.", display = ParameterDisplay.HIDDEN, allowEmpty = false)
-        text("should_execute_tests", "false")
+        text("git_main_branch", "main", label = "Git Main Branch", description = "The git main or default branch to use in VCS operations.", display = ParameterDisplay.HIDDEN, allowEmpty = false)
+        text("github_repository_name", "AccessTransformers", label = "The github repository name. Used to connect to it in VCS Roots.", description = "This is the repository slug on github. So for example `AccessTransformers` or `MinecraftForge`. It is interpolated into the global VCS Roots.", display = ParameterDisplay.HIDDEN, allowEmpty = false)
         text("env.PUBLISHED_JAVA_ARTIFACT_ID", "accesstransformers", label = "Published artifact id", description = "The maven coordinate artifact id that has been published by this build. Can not be empty.", allowEmpty = false)
-        text("env.PUBLISHED_JAVA_GROUP", "net.minecraftforge", label = "Published group", description = "The maven coordinate group that has been published by this build. Can not be empty.", allowEmpty = false)
+        text("env.PUBLISHED_JAVA_GROUP", "net.neoforged", label = "Published group", description = "The maven coordinate group that has been published by this build. Can not be empty.", allowEmpty = false)
+        text("docker_jdk_version", "17", label = "JDK version", description = "The version of the JDK to use during execution of tasks in a JDK.", display = ParameterDisplay.HIDDEN, allowEmpty = false)
+        text("docker_gradle_version", "8.4", label = "Gradle version", description = "The version of Gradle to use during execution of Gradle tasks.", display = ParameterDisplay.HIDDEN, allowEmpty = false)
     }
 
     features {
         githubIssues {
-            id = "accesstransformers__IssueTracker"
-            displayName = "MinecraftForge/accesstransformers"
-            repositoryURL = "https://github.com/MinecraftForge/accesstransformers"
+            id = "AccessTransformers__IssueTracker"
+            displayName = "neoforged/AccessTransformers"
+            repositoryURL = "https://github.com/neoforged/AccessTransformers"
         }
     }
 }
 
 object Build : BuildType({
     templates(AbsoluteId("MinecraftForge_SetupGradleUtilsCiEnvironmen"), AbsoluteId("MinecraftForge_BuildWithDiscordNotifications"), AbsoluteId("MinecraftForge_BuildMainBranches"), AbsoluteId("MinecraftForge_BuildUsingGradle"), AbsoluteId("MinecraftForge_PublishProjectUsingGradle"), AbsoluteId("MinecraftForge_TriggersStaticFilesWebpageGenerator"))
-    id("accesstransformers__Build")
+    id("AccessTransformers__Build")
     name = "Build"
     description = "Builds and Publishes the main branches of the project."
 })
 
+object BuildSecondaryBranches : BuildType({
+    templates(AbsoluteId("MinecraftForge_ExcludesBuildingDefaultBranch"), AbsoluteId("MinecraftForge_SetupGradleUtilsCiEnvironmen"), AbsoluteId("MinecraftForge_BuildWithDiscordNotifications"), AbsoluteId("MinecraftForge_BuildMainBranches"), AbsoluteId("MinecraftForge_BuildUsingGradle"))
+    id("AccessTransformers__BuildSecondaryBranches")
+    name = "Build - Secondary Branches"
+    description = "Builds and Publishes the secondary branches of the project."
+})
+
 object PullRequests : BuildType({
     templates(AbsoluteId("MinecraftForge_BuildPullRequests"), AbsoluteId("MinecraftForge_SetupGradleUtilsCiEnvironmen"), AbsoluteId("MinecraftForge_BuildWithDiscordNotifications"), AbsoluteId("MinecraftForge_BuildUsingGradle"))
-    id("accesstransformers__PullRequests")
+    id("AccessTransformers__PullRequests")
     name = "Pull Requests"
     description = "Builds pull requests for the project"
 })
