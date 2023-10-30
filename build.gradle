@@ -167,15 +167,6 @@ artifacts {
     archives shadowJar
 }
 
-if (System.getenv('GPG_PRIVATE_KEY')) {
-    signing {
-        final signingKey = System.getenv('GPG_PRIVATE_KEY') ?: ''
-        final signingPassword = System.getenv('GPG_KEY_PASSWORD') ?: ''
-        useInMemoryPgpKeys(signingKey, signingPassword)
-        sign publishing.publications.mavenJava
-    }
-}
-
 publishing {
     publications {
         mavenJava(MavenPublication) {
@@ -224,6 +215,15 @@ publishing {
     }
     repositories {
         maven gradleutils.getPublishingForgeMaven()
+    }
+}
+
+if (System.getenv('GPG_PRIVATE_KEY')) {
+    signing {
+        final signingKey = System.getenv('GPG_PRIVATE_KEY') ?: ''
+        final signingPassword = System.getenv('GPG_KEY_PASSWORD') ?: ''
+        useInMemoryPgpKeys(signingKey, signingPassword)
+        sign publishing.publications.mavenJava
     }
 }
 
