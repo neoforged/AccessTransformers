@@ -18,6 +18,7 @@ public class AccessTransformerList {
     private static final Logger LOGGER = LogManager.getLogger("AXFORM");
     private static final Marker AXFORM_MARKER = MarkerManager.getMarker("AXFORM");
     private final Map<Target<?>, AccessTransformer> accessTransformers = new HashMap<>();
+    private Set<Type> targetedClassCache = Collections.emptySet();
     private INameHandler nameHandler = new IdentityNameHandler();
 
     public void loadFromResource(final String resourceName) throws URISyntaxException, IOException {
@@ -44,6 +45,7 @@ public class AccessTransformerList {
         }
         this.accessTransformers.clear();
         this.accessTransformers.putAll(localATCopy);
+        this.targetedClassCache = this.accessTransformers.keySet().stream().map(Target::getASMType).collect(Collectors.toSet());
         LOGGER.debug(AXFORM_MARKER,"Loaded access transformer {} from path {}", resourceName, path);
     }
 
@@ -55,7 +57,6 @@ public class AccessTransformerList {
         return accessTransformers.values().stream().filter(e -> !e.isValid()).collect(Collectors.toList());
     }
 
-
     public Map<String, List<AccessTransformer>> getAccessTransformers() {
         return accessTransformers.entrySet().stream().collect(Collectors.groupingBy(
                 (Map.Entry<Target<?>, AccessTransformer> e) -> e.getValue().getTarget().getClassName(),
@@ -65,7 +66,7 @@ public class AccessTransformerList {
     }
 
     public boolean containsClassTarget(final Type type) {
-        return accessTransformers.keySet().stream().anyMatch(k->type.equals(k.getASMType()));
+        return targetedClassCache.contains(type);
     }
 
     public Map<TargetType, Map<String,AccessTransformer>> getTransformersForTarget(final Type type) {
