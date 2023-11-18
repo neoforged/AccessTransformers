@@ -1,5 +1,6 @@
 package net.neoforged.accesstransformer;
 
+import net.neoforged.accesstransformer.api.AccessTransformers;
 import net.neoforged.accesstransformer.parser.AccessTransformerList;
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.*;
@@ -11,10 +12,10 @@ import java.nio.file.*;
 import java.util.*;
 import java.util.stream.*;
 
-public enum AccessTransformerEngine {
+public enum AccessTransformerEngine implements AccessTransformers {
     INSTANCE;
 
-    private AccessTransformerList masterList = new AccessTransformerList();
+    private final AccessTransformerList masterList = new AccessTransformerList();
 
     public boolean transform(ClassNode clazzNode, final Type classType) {
         // this should never happen but safety first
@@ -62,9 +63,5 @@ public enum AccessTransformerEngine {
 
     public boolean handlesClass(final Type className) {
         return masterList.containsClassTarget(className);
-    }
-
-    public void acceptNaming(INameHandler handler) {
-        this.masterList.setNameHandler(handler);
     }
 }

@@ -19,7 +19,6 @@ public class AccessTransformerList {
     private static final Marker AXFORM_MARKER = MarkerManager.getMarker("AXFORM");
     private final Map<Target<?>, AccessTransformer> accessTransformers = new HashMap<>();
     private Set<Type> targetedClassCache = Collections.emptySet();
-    private INameHandler nameHandler = new IdentityNameHandler();
 
     public void loadFromResource(final String resourceName) throws URISyntaxException, IOException {
         final Path path = Paths.get(getClass().getClassLoader().getResource(resourceName).toURI());
@@ -34,7 +33,7 @@ public class AccessTransformerList {
         final AtParser parser = new AtParser(tokenStream);
         parser.addErrorListener(new AtParserErrorListener());
         final AtParser.FileContext file = parser.file();
-        final AccessTransformVisitor accessTransformVisitor = new AccessTransformVisitor(resourceName, nameHandler);
+        final AccessTransformVisitor accessTransformVisitor = new AccessTransformVisitor(resourceName);
         file.accept(accessTransformVisitor);
         final HashMap<Target<?>, AccessTransformer> localATCopy = new HashMap<>(accessTransformers);
         mergeAccessTransformers(accessTransformVisitor.getAccessTransformers(), localATCopy, resourceName);
@@ -76,8 +75,4 @@ public class AccessTransformerList {
                 .collect(Collectors.groupingBy(o->o.getTarget().getType(), HashMap::new, Collectors.toMap(at->at.getTarget().targetName(), Function.identity())));
     }
 
-    public void setNameHandler(final INameHandler nameHandler) {
-        this.nameHandler = nameHandler;
-        LOGGER.debug(AXFORM_MARKER, "Set name handler {}", nameHandler);
-    }
 }
