@@ -5,8 +5,6 @@ import net.neoforged.accesstransformer.api.AccessTransformerEngine;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
 
-import java.io.IOException;
-import java.nio.file.Path;
 import java.util.EnumSet;
 
 public class AccessTransformerService implements ILaunchPluginService {
@@ -15,19 +13,6 @@ public class AccessTransformerService implements ILaunchPluginService {
     @Override
     public String name() {
         return "accesstransformer";
-    }
-
-    /**
-     * @deprecated Use {@link AccessTransformerEngine#loadATFromPath(Path)} instead
-     */
-    @Override
-    @Deprecated(forRemoval = true, since = "10.0")
-    public void offerResource(final Path path, final String resourceName) {
-        try {
-            engine.loadATFromPath(path);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to load AT file " + path, e);
-        }
     }
 
     @Override
