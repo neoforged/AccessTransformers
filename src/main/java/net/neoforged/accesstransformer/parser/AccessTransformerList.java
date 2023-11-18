@@ -4,39 +4,57 @@ import net.neoforged.accesstransformer.generated.*;
 
 import net.neoforged.accesstransformer.*;
 import org.antlr.v4.runtime.*;
-import org.apache.logging.log4j.*;
 import org.objectweb.asm.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Marker;
+import org.slf4j.MarkerFactory;
 
 import java.io.*;
 import java.net.*;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.charset.CodingErrorAction;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.*;
 import java.util.function.*;
 import java.util.stream.*;
 
 public class AccessTransformerList {
-    private static final Logger LOGGER = LogManager.getLogger("AXFORM");
-    private static final Marker AXFORM_MARKER = MarkerManager.getMarker("AXFORM");
+    private static final Logger LOGGER = LoggerFactory.getLogger("AXFORM");
+    private static final Marker AXFORM_MARKER = MarkerFactory.getMarker("AXFORM");
     private final Map<Target<?>, AccessTransformer> accessTransformers = new HashMap<>();
     private Set<Type> targetedClassCache = Collections.emptySet();
 
     public void loadFromResource(final String resourceName) throws URISyntaxException, IOException {
         final Path path = Paths.get(getClass().getClassLoader().getResource(resourceName).toURI());
-        loadFromPath(path, resourceName);
+        loadFromPath(path);
     }
 
-    public void loadFromPath(final Path path, final String resourceName) throws IOException {
-        LOGGER.debug(AXFORM_MARKER,"Loading access transformer {} from path {}", resourceName, path);
-        final CharStream stream = CharStreams.fromPath(path);
+    public void loadFromPath(final Path path) throws IOException {
+        long size = Files.size(path);
+        try (ReadableByteChannel channel = Files.newByteChannel(path)) {
+            loadAT(CharStreams.fromChannel(
+                    channel,
+                    StandardCharsets.UTF_8,
+                    4096, // CharStreams.DEFAULT_BUFFER_SIZE
+                    CodingErrorAction.REPLACE,
+                    path.getFileName().toString(),
+                    size));
+        }
+    }
+
+    public void loadAT(final CharStream stream) {
+        LOGGER.debug(AXFORM_MARKER, "Loading access transformer {}", stream.getSourceName());
         final AtLexer lexer = new AtLexer(stream);
         final CommonTokenStream tokenStream = new CommonTokenStream(lexer);
         final AtParser parser = new AtParser(tokenStream);
         parser.addErrorListener(new AtParserErrorListener());
         final AtParser.FileContext file = parser.file();
-        final AccessTransformVisitor accessTransformVisitor = new AccessTransformVisitor(resourceName);
+        final AccessTransformVisitor accessTransformVisitor = new AccessTransformVisitor(stream.getSourceName());
         file.accept(accessTransformVisitor);
         final HashMap<Target<?>, AccessTransformer> localATCopy = new HashMap<>(accessTransformers);
-        mergeAccessTransformers(accessTransformVisitor.getAccessTransformers(), localATCopy, resourceName);
+        mergeAccessTransformers(accessTransformVisitor.getAccessTransformers(), localATCopy, stream.getSourceName());
         final List<AccessTransformer> invalidTransformers = invalidTransformers(localATCopy);
         if (!invalidTransformers.isEmpty()) {
             invalidTransformers.forEach(at -> LOGGER.error(AXFORM_MARKER,"Invalid access transform final state for target {}. Referred in resources {}.",at.getTarget(), at.getOrigins()));
@@ -45,7 +63,7 @@ public class AccessTransformerList {
         this.accessTransformers.clear();
         this.accessTransformers.putAll(localATCopy);
         this.targetedClassCache = this.accessTransformers.keySet().stream().map(Target::getASMType).collect(Collectors.toSet());
-        LOGGER.debug(AXFORM_MARKER,"Loaded access transformer {} from path {}", resourceName, path);
+        LOGGER.debug(AXFORM_MARKER,"Loaded access transformer {}", stream.getSourceName());
     }
 
     private void mergeAccessTransformers(final List<AccessTransformer> atList, final Map<Target<?>, AccessTransformer> accessTransformers, final String resourceName) {
@@ -65,7 +83,11 @@ public class AccessTransformerList {
     }
 
     public boolean containsClassTarget(final Type type) {
-        return targetedClassCache.contains(type);
+        return getTargets().contains(type);
+    }
+
+    public Set<Type> getTargets() {
+        return targetedClassCache;
     }
 
     public Map<TargetType, Map<String,AccessTransformer>> getTransformersForTarget(final Type type) {

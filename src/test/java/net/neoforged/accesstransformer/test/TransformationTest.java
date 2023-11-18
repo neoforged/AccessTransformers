@@ -1,8 +1,9 @@
 package net.neoforged.accesstransformer.test;
 
 import cpw.mods.bootstraplauncher.BootstrapLauncher;
+import cpw.mods.modlauncher.Launcher;
 import cpw.mods.modlauncher.api.ServiceRunner;
-import net.neoforged.accesstransformer.AccessTransformerEngine;
+import net.neoforged.accesstransformer.ml.AccessTransformerService;
 import net.neoforged.accesstransformer.parser.AccessTransformerList;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
@@ -60,7 +61,7 @@ public class TransformationTest {
         static Class<?> transformedClass3;
 
         public static void doTest(ClassLoader transformingClassLoader) {
-            AccessTransformerList list = Whitebox.getInternalState(AccessTransformerEngine.INSTANCE, "masterList");
+            AccessTransformerList list = Whitebox.getInternalState(((AccessTransformerService) Launcher.INSTANCE.environment().findLaunchPlugin("accesstransformer").orElseThrow()).engine, "masterList");
             assertDoesNotThrow(() -> list.loadFromResource("test_at.cfg"));
 
             assertDoesNotThrow(() -> {

@@ -1,23 +1,42 @@
-package net.neoforged.accesstransformer;
+package net.neoforged.accesstransformer.cli;
 
-import joptsimple.*;
-import joptsimple.util.*;
-import org.apache.logging.log4j.*;
+import joptsimple.ArgumentAcceptingOptionSpec;
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+import joptsimple.util.PathConverter;
+import joptsimple.util.PathProperties;
+import net.neoforged.accesstransformer.api.AccessTransformerEngine;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.appender.FileAppender;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.Configurator;
-import org.objectweb.asm.*;
-import org.objectweb.asm.tree.*;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.ClassNode;
 
-import java.io.*;
-import java.net.*;
-import java.nio.file.*;
-import java.util.*;
-import java.util.stream.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class TransformerProcessor {
+    private static final AccessTransformerEngine ACCESS_TRANSFORMERS = AccessTransformerEngine.newEngine();
     static {
         Configurator.initialize("", "atlog4j2.xml");
     }
@@ -86,11 +105,14 @@ public class TransformerProcessor {
         return Arrays.asList(vars);
     }
 
-    @SuppressWarnings("serial")
     private static void processJar(final Path inputJar, final Path outputJarPath, final List<Path> atFilePaths) {
         atFilePaths.forEach(path -> {
-            AccessTransformerEngine.INSTANCE.addResource(path, path.getFileName().toString());
-            LOGGER.debug(AXFORM_MARKER,"Loaded access transformer file {}", path);
+            try {
+                ACCESS_TRANSFORMERS.loadATFromPath(path);
+                LOGGER.debug(AXFORM_MARKER,"Loaded access transformer file {}", path);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         });
 
         final URI toUri = outputJarPath.toUri();
@@ -109,9 +131,9 @@ public class TransformerProcessor {
                                     final ClassNode cn = new ClassNode();
                                     classReader.accept(cn, 0);
                                     final Type type = Type.getType('L'+cn.name.replaceAll("\\.","/")+';');
-                                    if (AccessTransformerEngine.INSTANCE.handlesClass(type)) {
+                                    if (ACCESS_TRANSFORMERS.getTargets().contains(type)) {
                                         LOGGER.debug(AXFORM_MARKER,"Transforming class {}", type);
-                                        AccessTransformerEngine.INSTANCE.transform(cn, type);
+                                        ACCESS_TRANSFORMERS.transform(cn, type);
                                         ClassWriter cw = new ClassWriter(Opcodes.ASM5);
                                         cn.accept(cw);
                                         Files.write(outPath, cw.toByteArray());

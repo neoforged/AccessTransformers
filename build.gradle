@@ -1,37 +1,60 @@
+import net.neoforged.gradleutils.PomUtilsExtension.License
+
 plugins {
-    id 'com.github.johnrengelman.shadow' version '8.1.1'
-    id 'com.github.ben-manes.versions' version '0.39.0'
+    alias(libs.plugins.gradleutils)
     id 'antlr'
-    id 'net.neoforged.gradleutils' version '2.+'
-    id 'signing'
 }
 
-apply plugin: 'maven-publish'
-apply plugin: 'java-library'
-apply plugin: 'eclipse'
+allprojects { project ->
+    apply plugin: 'java-library'
+    apply plugin: 'maven-publish'
+    group 'net.neoforged.accesstransformers'
 
-group 'net.neoforged'
+    version = gradleutils.version
+    gradleutils.setupSigning(project)
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven {
+            name = 'neoforged'
+            url = 'https://maven.neoforged.net/releases/'
+        }
+    }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
-
-version = gradleutils.getTagOffsetVersion()
-println('Version: ' + version)
-
-def isNonStable = { String version ->
-    def stableKeyword = ['RELEASE', 'FINAL', 'GA'].any { it -> version.toUpperCase().contains(it) }
-    def regex = /^[0-9,.v-]+(-r)?$/
-    return !stableKeyword && !(version ==~ regex)
-}
-
-dependencyUpdates {
-    rejectVersionIf {
-        isNonStable(it.candidate.version)
+    java {
+        modularity.inferModulePath = true
+        withSourcesJar()
+        toolchain.languageVersion = JavaLanguageVersion.of(17)
     }
 }
 
+subprojects { proj ->
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                from components.java
+                artifactId = "at-${proj.name}"
+                pom {
+                    name = "Access Transformers $proj"
+                    description = 'Transforms class member access based on specification files'
+                    pomUtils.githubRepo(it, 'AccessTransformers')
+                    pomUtils.license(it, License.MIT)
+                    pomUtils.neoForgedDeveloper(it)
+                }
+            }
+        }
+        repositories {
+            maven gradleutils.publishingMaven
+        }
+    }
+}
+
+group 'net.neoforged'
+
+println('Version: ' + version)
+
 sourceSets {
     testJars
-    modlauncherImpl
 }
 
 compileJava {
@@ -39,22 +62,15 @@ compileJava {
 }
 
 jar.manifest = manifest {
-    attributes(['Specification-Title': 'accesstransformers',
-                'Specification-Vendor': 'neoforged',
-                'Specification-Version': '1', // Currently version 1 of the accesstransformer specification
-                'Implementation-Title': project.name,
-                'Implementation-Version': "${project.version}+${gradleutils.gitInfo.abbreviatedId}",
-                'Implementation-Vendor': 'neoforged',
-                'Git-Commit': gradleutils.gitInfo.abbreviatedId],
-            'net/neoforged/accesstransformer/service/')
-    attributes(['Specification-Title': 'accesstransformers',
-                'Specification-Vendor': 'neoforged',
-                'Specification-Version': '1', // Currently version 1 of the accesstransformer specification
-                'Implementation-Title': project.name,
-                'Implementation-Version': "${project.version}+${gradleutils.gitInfo.abbreviatedId}",
-                'Implementation-Vendor': 'neoforged',
-                'Git-Commit': gradleutils.gitInfo.abbreviatedId],
-            'net/neoforged/accesstransformer/')
+    attributes([
+            'Specification-Title': 'accesstransformers',
+            'Specification-Vendor': 'neoforged',
+            'Specification-Version': '1', // Currently version 1 of the accesstransformer specification
+            'Implementation-Title': project.name,
+            'Implementation-Version': "${project.version}+${gradleutils.gitInfo.abbreviatedId}",
+            'Implementation-Vendor': 'neoforged',
+            'Git-Commit': gradleutils.gitInfo.abbreviatedId
+    ])
 }
 
 tasks.register('testsJar', Jar) {
@@ -62,26 +78,15 @@ tasks.register('testsJar', Jar) {
     from sourceSets.testJars.output
 }
 
-tasks.register('sourcesJar', Jar) {
+tasks.named('sourcesJar', Jar) {
     dependsOn generateGrammarSource
-    archiveClassifier = 'sources'
-    from sourceSets.main.allSource
 }
 
 changelog {
-    fromTag '9.0'
+    from '9.0'
 }
 
 build.dependsOn testsJar
-
-repositories {
-    mavenLocal()
-    mavenCentral()
-    maven {
-        name = 'neoforged'
-        url = 'https://maven.neoforged.net/releases/'
-    }
-}
 
 configurations {
     api {
@@ -91,42 +96,30 @@ configurations {
 }
 
 dependencies {
-    testImplementation('org.junit.jupiter:junit-jupiter-api:5.7.2')
-    testImplementation('org.powermock:powermock-core:2.0+')
-    testImplementation('cpw.mods:modlauncher:10.1.7')
-    testImplementation('cpw.mods:bootstraplauncher:1.1.5')
-    testImplementation('cpw.mods:securejarhandler:2.1.11')
-    testImplementation('com.google.code.gson:gson:2.8.9')
-    testImplementation(sourceSets.modlauncherImpl.output)
-    testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine:5.7.2')
-    implementation('org.antlr:antlr4-runtime:4.13.1')
-    implementation('net.sf.jopt-simple:jopt-simple:5.0.4')
-    implementation('org.ow2.asm:asm:9.1')
-    implementation('org.ow2.asm:asm-commons:9.1')
-    implementation('org.ow2.asm:asm-tree:9.1')
-    implementation('org.apache.logging.log4j:log4j-api:2.12.4')
-    implementation('org.apache.logging.log4j:log4j-core:2.12.4')
-    modlauncherImplImplementation('cpw.mods:modlauncher:10.1.7')
-    modlauncherImplImplementation(sourceSets.main.output)
-    antlr('org.antlr:antlr4:4.13.1')
+    testImplementation(libs.junit.api)
+    testImplementation(libs.powermock)
+    testImplementation(libs.bsl)
+    testImplementation(libs.sjh)
+    testImplementation(libs.gson)
+    testImplementation(project(':modlauncher'))
+    testImplementation(libs.jopt5)
+    testImplementation(libs.bundles.log4j)
+    testRuntimeOnly(libs.junit.engine)
+
+    antlr(libs.antlr)
+
+    api(libs.slf4j)
+    api(libs.bundles.asm)
+    api(libs.antlr.runtime)
 }
 
 // Build the module path manually because Gradle won't do it for non-modular projects.
 // Feel free to replace by a better way, I just wanted the tests to run.
 import java.util.stream.Collectors
 def buildModulePath() {
-    def deps = [
-            "asm-9.5.jar",
-            "asm-tree-9.5.jar",
-            "bootstraplauncher-1.1.5.jar",
-            "modlauncher-10.1.7.jar",
-            "securejarhandler-2.1.11.jar",
-    ]
-    return deps.stream().map({ dep ->
-        project.configurations.testRuntimeClasspath.find({
-            return it.name.equals(dep)
-        }).getParent()
-    }).collect(Collectors.joining(File.pathSeparator))
+    project.configurations.testRuntimeClasspath.resolve()*.toString().stream().filter {
+        it.contains('asm') || it.contains('modlauncher') || it.contains('bootstraplauncher') || it.contains('securejarhandler')
+    }.collect(Collectors.joining(File.pathSeparator))
 }
 
 test {
@@ -140,58 +133,16 @@ test {
 
 test.dependsOn(testJarsClasses)
 
-jar {
-    from sourceSets.modlauncherImpl.output
-}
-
-shadowJar {
-    archiveClassifier = 'fatjar'
-    exclude '**/Log4j2Plugins.dat'
-    manifest {
-        inheritFrom jar.manifest
-        attributes('Main-Class': 'net.neoforged.accesstransformer.TransformerProcessor')
-        attributes('Multi-Release': 'true')
-    }
-    dependencies {
-        exclude(dependency {
-            it.moduleName == 'antlr4'
-        })
-    }
-}
-
-artifacts {
-    archives jar
-    archives sourcesJar
-    archives testsJar
-    archives shadowJar
-}
-
 publishing {
     publications {
         mavenJava(MavenPublication) {
             from components.java
-            artifact sourcesJar
             artifactId = "accesstransformers"
             pom {
                 name = 'Access Transformers'
                 description = 'Transforms class member access based on specification files'
-                url = 'https://github.com/neoforged/AccessTransformers'
-                scm {
-                    url = 'https://github.com/neoforged/AccessTransformers'
-                    connection = 'scm:git:git://github.com/neoforged/AccessTransformers.git'
-                    developerConnection = 'scm:git:git@github.com:neoforged/AccessTransformers.git'
-                }
-                issueManagement {
-                    system = 'github'
-                    url = 'https://github.com/neoforged/AccessTransformers/issues'
-                }
-
-                licenses {
-                    license {
-                        name = 'MIT'
-                        url = 'https://opensource.org/licenses/MIT'
-                    }
-                }
+                pomUtils.githubRepo(it, 'AccessTransformers')
+                pomUtils.license(it, License.MIT)
 
                 developers {
                     developer {
@@ -213,16 +164,7 @@ publishing {
         }
     }
     repositories {
-        maven gradleutils.getPublishingForgeMaven()
-    }
-}
-
-if (System.getenv('GPG_PRIVATE_KEY')) {
-    signing {
-        final signingKey = System.getenv('GPG_PRIVATE_KEY') ?: ''
-        final signingPassword = System.getenv('GPG_KEY_PASSWORD') ?: ''
-        useInMemoryPgpKeys(signingKey, signingPassword)
-        sign publishing.publications.mavenJava
+        maven gradleutils.publishingMaven
     }
 }
 
