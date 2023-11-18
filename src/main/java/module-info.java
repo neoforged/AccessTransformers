@@ -1,4 +1,4 @@
-open module net.neoforged.accesstransformer {
+module net.neoforged.accesstransformer {
     exports net.neoforged.accesstransformer.api;
     requires org.antlr.antlr4.runtime;
 
