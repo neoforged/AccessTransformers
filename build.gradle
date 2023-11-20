@@ -32,6 +32,7 @@ subprojects { proj ->
     publishing {
         publications {
             mavenJava(MavenPublication) {
+                gradleutils.sign(it)
                 from components.java
                 artifactId = "at-${proj.name}"
                 pom {
@@ -138,6 +139,7 @@ publishing {
         mavenJava(MavenPublication) {
             from components.java
             artifactId = "accesstransformers"
+            gradleutils.sign(it)
             pom {
                 name = 'Access Transformers'
                 description = 'Transforms class member access based on specification files'
