@@ -13,8 +13,8 @@
 *.iml
 
 #gradle
-/build
-/.gradle
+build
+.gradle
 
 #occupational hazards
 /projects/

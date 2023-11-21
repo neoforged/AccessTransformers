@@ -10,14 +10,11 @@ import java.util.stream.*;
 
 
 public class AccessTransformVisitor extends AtParserBaseVisitor<Void> {
-    private final INameHandler nameHandler;
-
     private List<AccessTransformer> accessTransformers = new ArrayList<>();
     private final String origin;
 
-    public AccessTransformVisitor(final String origin, final INameHandler nameHandler) {
+    public AccessTransformVisitor(final String origin) {
         this.origin = origin;
-        this.nameHandler = nameHandler;
     }
 
     @Override
@@ -25,7 +22,6 @@ public class AccessTransformVisitor extends AtParserBaseVisitor<Void> {
         if (ctx.line_value() == null) {
             String className = ctx.class_name().getText();
             String modifier = ctx.keyword().getText();
-            className = nameHandler.translateClassName(className);
             Target<?> target = new ClassTarget(className);
             accessTransformers.add(new AccessTransformer(target, ModifierProcessor.modifier(modifier), ModifierProcessor.finalState(modifier), this.origin, ctx.getStart().getLine()));
 
@@ -44,8 +40,6 @@ public class AccessTransformVisitor extends AtParserBaseVisitor<Void> {
         String className = entry.class_name().getText();
         String modifier = entry.keyword().getText();
         String methodName = ctx.func_name().getText();
-        className = nameHandler.translateClassName(className);
-        methodName = nameHandler.translateMethodName(methodName);
         List<String> args = ctx.argument().stream().map(RuleContext::getText).collect(Collectors.toList());
         String retVal = ctx.return_value().getText();
         Target<?> target = new MethodTarget(className, methodName, args, retVal);
@@ -59,8 +53,6 @@ public class AccessTransformVisitor extends AtParserBaseVisitor<Void> {
         String className = entry.class_name().getText();
         String modifier = entry.keyword().getText();
         String fieldName = ctx.getText();
-        className = nameHandler.translateClassName(className);
-        fieldName = nameHandler.translateFieldName(fieldName);
         Target<?> target = new FieldTarget(className, fieldName);
         accessTransformers.add(new AccessTransformer(target, ModifierProcessor.modifier(modifier), ModifierProcessor.finalState(modifier), this.origin, ctx.getStart().getLine()));
         return super.visitField_name(ctx);

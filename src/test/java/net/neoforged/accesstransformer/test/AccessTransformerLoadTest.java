@@ -1,33 +1,30 @@
 package net.neoforged.accesstransformer.test;
 
-import com.google.gson.*;
-import com.google.gson.reflect.*;
-
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import net.neoforged.accesstransformer.AccessTransformer;
-import net.neoforged.accesstransformer.AccessTransformerEngine;
-import net.neoforged.accesstransformer.service.*;
-
-import java.nio.charset.*;
-
+import net.neoforged.accesstransformer.ml.AccessTransformerService;
 import net.neoforged.accesstransformer.parser.AccessTransformerList;
-import net.neoforged.accesstransformer.service.AccessTransformerService;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Test;
+import org.powermock.reflect.Whitebox;
 
-import java.io.*;
-import java.net.*;
-import java.nio.file.*;
-import java.util.*;
-import java.util.stream.*;
-import org.powermock.reflect.*;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class AccessTransformerLoadTest {
-    @AfterEach
-    public void cleanUp() {
-        Whitebox.setInternalState(AccessTransformerEngine.INSTANCE, "masterList", new AccessTransformerList());
-    }
-
     @Test
     public void testLoadForgeAT() throws IOException, URISyntaxException {
         final AccessTransformerList atLoader = new AccessTransformerList();
@@ -41,8 +38,8 @@ public class AccessTransformerLoadTest {
         final AccessTransformerService mls = new AccessTransformerService();
         try (final FileSystem jarFS = FileSystems.newFileSystem(FileSystems.getDefault().getPath("src","test","resources","testatmod.jar"), getClass().getClassLoader())) {
             final Path atPath = jarFS.getPath("META-INF", "forge_at.cfg");
-            mls.offerResource(atPath,"forge_at.cfg");
-            final AccessTransformerList list = Whitebox.getInternalState(AccessTransformerEngine.INSTANCE, "masterList");
+            mls.engine.loadATFromPath(atPath);
+            final AccessTransformerList list = Whitebox.getInternalState(mls.engine, "masterList");
             final Map<String, List<AccessTransformer>> accessTransformers = list.getAccessTransformers();
             testText(accessTransformers);
         }

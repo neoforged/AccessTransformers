@@ -1,18 +1,22 @@
 package net.neoforged.accesstransformer;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.Marker;
-import org.apache.logging.log4j.MarkerManager;
-import org.objectweb.asm.*;
+import org.objectweb.asm.Opcodes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Marker;
+import org.slf4j.MarkerFactory;
 
-import java.util.*;
-import java.util.function.*;
-import java.util.stream.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.IntFunction;
+import java.util.stream.Collectors;
 
 public class AccessTransformer {
-    private static final Logger LOGGER = LogManager.getLogger();
-    private static final Marker AXFORM_MARKER = MarkerManager.getMarker("AXFORM");
+    private static final Logger LOGGER = LoggerFactory.getLogger(AccessTransformer.class);
+    private static final Marker AXFORM_MARKER = MarkerFactory.getMarker("AXFORM");
     private final Target<?> memberTarget;
     private final Modifier targetAccess;
     private final FinalState targetFinalState;

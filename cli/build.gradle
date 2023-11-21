@@ -1,0 +1,28 @@
+plugins {
+    alias(libs.plugins.shadow)
+}
+
+dependencies {
+    api(rootProject)
+    api(libs.jopt)
+    implementation(libs.bundles.log4j)
+}
+
+shadowJar {
+    archiveClassifier = 'fatjar'
+    exclude '**/Log4j2Plugins.dat'
+    manifest {
+        inheritFrom jar.manifest
+        attributes('Main-Class': 'net.neoforged.accesstransformer.cli.TransformerProcessor')
+        attributes('Multi-Release': 'true')
+    }
+    dependencies {
+        exclude(dependency {
+            it.moduleName == 'antlr4'
+        })
+    }
+}
+
+artifacts {
+    archives shadowJar
+}

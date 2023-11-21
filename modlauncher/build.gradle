@@ -1,0 +1,6 @@
+dependencies {
+    api(rootProject)
+    api(libs.modlauncher) {
+        exclude module: 'jopt-simple'
+    }
+}

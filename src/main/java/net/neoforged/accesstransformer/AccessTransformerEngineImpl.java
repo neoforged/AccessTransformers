@@ -1,21 +1,29 @@
 package net.neoforged.accesstransformer;
 
+import net.neoforged.accesstransformer.api.AccessTransformerEngine;
 import net.neoforged.accesstransformer.parser.AccessTransformerList;
-import org.objectweb.asm.*;
-import org.objectweb.asm.tree.*;
+import org.antlr.v4.runtime.CharStream;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.FieldNode;
+import org.objectweb.asm.tree.MethodInsnNode;
+import org.objectweb.asm.tree.MethodNode;
 
-import net.neoforged.accesstransformer.parser.*;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.stream.StreamSupport;
 
-import java.io.*;
-import java.nio.file.*;
-import java.util.*;
-import java.util.stream.*;
+public class AccessTransformerEngineImpl implements AccessTransformerEngine {
+    private final AccessTransformerList masterList = new AccessTransformerList();
 
-public enum AccessTransformerEngine {
-    INSTANCE;
-
-    private AccessTransformerList masterList = new AccessTransformerList();
-
+    @Override
     public boolean transform(ClassNode clazzNode, final Type classType) {
         // this should never happen but safety first
         if (!masterList.containsClassTarget(classType)) {
@@ -52,19 +60,24 @@ public enum AccessTransformerEngine {
         return true;
     }
 
-    public void addResource(final Path path, final String resourceName) {
-        try {
-            masterList.loadFromPath(path, resourceName);
-        } catch (IOException e) {
-            throw new IllegalArgumentException("Invalid path "+ path, e);
-        }
+
+    @Override
+    public void loadAT(CharStream charStream) {
+        masterList.loadAT(charStream);
     }
 
-    public boolean handlesClass(final Type className) {
-        return masterList.containsClassTarget(className);
+    @Override
+    public void loadATFromPath(Path path) throws IOException {
+        masterList.loadFromPath(path);
     }
 
-    public void acceptNaming(INameHandler handler) {
-        this.masterList.setNameHandler(handler);
+    @Override
+    public void loadATFromResource(String resourceName) throws URISyntaxException, IOException {
+        masterList.loadFromResource(resourceName);
+    }
+
+    @Override
+    public Set<Type> getTargets() {
+        return masterList.getTargets();
     }
 }
