@@ -84,7 +84,7 @@ tasks.named('sourcesJar', Jar) {
 }
 
 changelog {
-    from '9.0'
+    from '10.0'
 }
 
 build.dependsOn testsJar
