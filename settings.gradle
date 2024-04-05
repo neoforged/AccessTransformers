@@ -5,7 +5,7 @@ dependencyResolutionManagement {
             plugin('shadow', 'com.github.johnrengelman.shadow').version('8.1.1')
 
             final log4j = version 'log4j', '2.12.4'
-            final asm = version 'asm', '9.4'
+            final asm = version 'asm', '9.7'
             final antlr = version 'antlr', '4.13.1'
             final jupiter = version 'jupiter', '5.7.2'
 
