@@ -27,17 +27,19 @@ public final class AtParser {
             List<AccessTransformer> accessTransformers = new ArrayList<>();
             String line;
             while ((line = reader.readLine()) != null) {
+                // Strip comments and split on spaces
                 StringBuilder builder = new StringBuilder();
-                line.chars().takeWhile(c -> c != '#').forEach(builder::appendCodePoint);
-                String withoutComments = builder.toString();
                 List<String> parts = new ArrayList<>();
                 builder.setLength(0);
-                for (char c : withoutComments.toCharArray()) {
+                for (char c : line.toCharArray()) {
                     if (Character.isWhitespace(c)) {
                         if (!builder.isEmpty()) {
                             parts.add(builder.toString());
                         }
                         builder.setLength(0);
+                    } else if (c == '#') {
+                        builder.setLength(0);
+                        break;
                     } else {
                         builder.appendCodePoint(c);
                     }
@@ -46,11 +48,14 @@ public final class AtParser {
                     parts.add(builder.toString());
                 }
                 if (parts.isEmpty()) {
+                    // The line is empty or all comments
                     continue;
                 }
                 if (parts.size() < 2) {
-                    throw new RuntimeException("Invalid line " + reader.getLineNumber() + "; should be '<modifier> <class name>'");
+                    // The line has something in the "modifier" slot but nothing else
+                    throw new RuntimeException("Invalid line " + reader.getLineNumber() + "; should be '<modifier> <class name> [<member>]'");
                 }
+
                 String modifierString = parts.get(0);
                 AccessTransformer.FinalState finalState = AccessTransformer.FinalState.LEAVE;
                 if (modifierString.endsWith("-f")) {
@@ -61,7 +66,9 @@ public final class AtParser {
                     modifierString = modifierString.substring(0, modifierString.length() - 2);
                 }
                 AccessTransformer.Modifier modifier = parseModifier(modifierString, reader.getLineNumber());
+
                 String className = parts.get(1);
+                // Validate class name as dot-separated java identifiers
                 int finalIndex = reader.getLineNumber();
                 if (className.chars().reduce(0, (last, current) -> {
                     if (last == 0 && !Character.isJavaIdentifierStart(current) ||
@@ -78,6 +85,7 @@ public final class AtParser {
 
                 if (parts.size() < 3) {
                     target = new ClassTarget(className);
+                    // Class ATs of inner classes have a corresponding inner class AT for the nesting class
                     locateInnerClassAts(className, modifier, finalState, originName, reader.getLineNumber(), accessTransformers);
                 } else {
                     String identifier = parts.get(2);
