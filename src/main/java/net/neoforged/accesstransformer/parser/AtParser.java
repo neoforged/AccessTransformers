@@ -12,16 +12,6 @@ import java.util.List;
 public final class AtParser {
     private AtParser() {}
 
-    private static AccessTransformer.Modifier parseModifier(String modifier, int line) {
-        return switch (modifier) {
-            case "public" -> AccessTransformer.Modifier.PUBLIC;
-            case "private" -> AccessTransformer.Modifier.PRIVATE;
-            case "protected" -> AccessTransformer.Modifier.PROTECTED;
-            case "default" -> AccessTransformer.Modifier.DEFAULT;
-            default -> throw new RuntimeException("Invalid modifier: " + modifier + " at line " + line);
-        };
-    }
-
     public static List<AccessTransformer> parse(Reader wrappedReader, String originName) throws IOException {
         try (LineNumberReader reader = new LineNumberReader(wrappedReader)) {
             List<AccessTransformer> accessTransformers = new ArrayList<>();
@@ -112,6 +102,16 @@ public final class AtParser {
             }
             return accessTransformers;
         }
+    }
+
+    private static AccessTransformer.Modifier parseModifier(String modifier, int line) {
+        return switch (modifier) {
+            case "public" -> AccessTransformer.Modifier.PUBLIC;
+            case "private" -> AccessTransformer.Modifier.PRIVATE;
+            case "protected" -> AccessTransformer.Modifier.PROTECTED;
+            case "default" -> AccessTransformer.Modifier.DEFAULT;
+            default -> throw new RuntimeException("Invalid modifier: " + modifier + " at line " + line);
+        };
     }
 
     private static void locateInnerClassAts(String className, AccessTransformer.Modifier modifier, AccessTransformer.FinalState finalState, String originName, int index, List<AccessTransformer> ats) {
