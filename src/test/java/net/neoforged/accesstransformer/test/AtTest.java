@@ -10,7 +10,7 @@ class AtTest {
     @Test
     void test() {
         String string = "public net.minecraft.world.World func_175663_a(ILjava/lang/String;Lcom/mojang/authlib/GameProfile;IISLjava/lang/String;Z)Lnet/minecraft/util/math/BlockPos; # isAreaLoaded";
-        try (BufferedReader reader = new BufferedReader(new StringReader(string))) {
+        try (Reader reader = new StringReader(string)) {
             AtParser.parse(reader, "test");
         } catch (IOException e) {
             throw new UncheckedIOException(e);

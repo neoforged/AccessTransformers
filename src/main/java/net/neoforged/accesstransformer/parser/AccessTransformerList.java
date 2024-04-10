@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.net.URISyntaxException;
@@ -39,8 +38,7 @@ public class AccessTransformerList {
 
     public void loadAT(Reader reader, String originName) throws IOException {
         final HashMap<Target<?>, AccessTransformer> localATCopy = new HashMap<>(accessTransformers);
-        BufferedReader bufferedReader = reader instanceof BufferedReader buffered ? buffered : new BufferedReader(reader);
-        mergeAccessTransformers(AtParser.parse(bufferedReader, originName), localATCopy, originName);
+        mergeAccessTransformers(AtParser.parse(reader, originName), localATCopy, originName);
         final List<AccessTransformer> invalidTransformers = invalidTransformers(localATCopy);
         if (!invalidTransformers.isEmpty()) {
             invalidTransformers.forEach(at -> LOGGER.error(AXFORM_MARKER,"Invalid access transform final state for target {}. Referred in resources {}.",at.getTarget(), at.getOrigins()));

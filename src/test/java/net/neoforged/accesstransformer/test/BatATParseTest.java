@@ -4,10 +4,7 @@ import net.neoforged.accesstransformer.AccessTransformer;
 import net.neoforged.accesstransformer.parser.AtParser;
 import org.junit.jupiter.api.Test;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -21,7 +18,7 @@ public class BatATParseTest {
     public void testParseBadAT() throws IOException, URISyntaxException {
         try (
                 InputStream stream = getClass().getClassLoader().getResourceAsStream("bad_at.cfg");
-                BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
+                Reader reader = new InputStreamReader(stream)) {
             List<AccessTransformer> transformers = AtParser.parse(reader, "bad_at.cfg");
             List<String> lines = new ArrayList<>();
             transformers.forEach(t -> lines.add(t.toString()));
