@@ -1,24 +1,24 @@
 package net.neoforged.accesstransformer.parser;
 
-import net.neoforged.accesstransformer.generated.*;
-
-import net.neoforged.accesstransformer.*;
-import org.antlr.v4.runtime.*;
-import org.objectweb.asm.*;
+import net.neoforged.accesstransformer.AccessTransformer;
+import net.neoforged.accesstransformer.Target;
+import net.neoforged.accesstransformer.TargetType;
+import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 
-import java.io.*;
-import java.net.*;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.charset.CodingErrorAction;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
-import java.util.function.*;
-import java.util.stream.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class AccessTransformerList {
     private static final Logger LOGGER = LoggerFactory.getLogger("AXFORM");
@@ -32,29 +32,15 @@ public class AccessTransformerList {
     }
 
     public void loadFromPath(final Path path) throws IOException {
-        long size = Files.size(path);
-        try (ReadableByteChannel channel = Files.newByteChannel(path)) {
-            loadAT(CharStreams.fromChannel(
-                    channel,
-                    StandardCharsets.UTF_8,
-                    4096, // CharStreams.DEFAULT_BUFFER_SIZE
-                    CodingErrorAction.REPLACE,
-                    path.getFileName().toString(),
-                    size));
+        try (Reader reader = Files.newBufferedReader(path)) {
+            loadAT(reader, path.getFileName().toString());
         }
     }
 
-    public void loadAT(final CharStream stream) {
-        LOGGER.debug(AXFORM_MARKER, "Loading access transformer {}", stream.getSourceName());
-        final AtLexer lexer = new AtLexer(stream);
-        final CommonTokenStream tokenStream = new CommonTokenStream(lexer);
-        final AtParser parser = new AtParser(tokenStream);
-        parser.addErrorListener(new AtParserErrorListener());
-        final AtParser.FileContext file = parser.file();
-        final AccessTransformVisitor accessTransformVisitor = new AccessTransformVisitor(stream.getSourceName());
-        file.accept(accessTransformVisitor);
+    public void loadAT(Reader reader, String originName) throws IOException {
         final HashMap<Target<?>, AccessTransformer> localATCopy = new HashMap<>(accessTransformers);
-        mergeAccessTransformers(accessTransformVisitor.getAccessTransformers(), localATCopy, stream.getSourceName());
+        BufferedReader bufferedReader = reader instanceof BufferedReader buffered ? buffered : new BufferedReader(reader);
+        mergeAccessTransformers(AtParser.parse(bufferedReader, originName), localATCopy, originName);
         final List<AccessTransformer> invalidTransformers = invalidTransformers(localATCopy);
         if (!invalidTransformers.isEmpty()) {
             invalidTransformers.forEach(at -> LOGGER.error(AXFORM_MARKER,"Invalid access transform final state for target {}. Referred in resources {}.",at.getTarget(), at.getOrigins()));
@@ -63,7 +49,7 @@ public class AccessTransformerList {
         this.accessTransformers.clear();
         this.accessTransformers.putAll(localATCopy);
         this.targetedClassCache = this.accessTransformers.keySet().stream().map(Target::getASMType).collect(Collectors.toSet());
-        LOGGER.debug(AXFORM_MARKER,"Loaded access transformer {}", stream.getSourceName());
+        LOGGER.debug(AXFORM_MARKER,"Loaded access transformer {}", originName);
     }
 
     private void mergeAccessTransformers(final List<AccessTransformer> atList, final Map<Target<?>, AccessTransformer> accessTransformers, final String resourceName) {

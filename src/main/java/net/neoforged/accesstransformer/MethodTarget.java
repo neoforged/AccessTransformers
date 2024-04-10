@@ -12,12 +12,12 @@ public class MethodTarget extends Target<MethodNode> {
     private final Type returnType;
     private final String targetName;
 
-    public MethodTarget(final String className, final String methodName, final List<String> arguments, final String returnValue) {
+    public MethodTarget(final String className, final String methodName, final Type methodDescriptor) {
         super(className);
         this.methodName = methodName;
-        this.arguments = arguments.stream().map(s->s.replaceAll("\\.", "/")).map(Type::getType).collect(Collectors.toList());
-        this.returnType = Type.getType(returnValue.replaceAll("\\.","/"));
-        this.targetName = methodName+'('+arguments.stream().collect(Collectors.joining())+')'+returnType;
+        this.arguments = Arrays.stream(methodDescriptor.getArgumentTypes()).toList();
+        this.returnType = methodDescriptor.getReturnType();
+        this.targetName = methodName+methodDescriptor;
     }
 
     @Override

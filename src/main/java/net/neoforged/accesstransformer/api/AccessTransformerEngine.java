@@ -1,11 +1,11 @@
 package net.neoforged.accesstransformer.api;
 
 import net.neoforged.accesstransformer.AccessTransformerEngineImpl;
-import org.antlr.v4.runtime.CharStream;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
 
 import java.io.IOException;
+import java.io.Reader;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.Set;
@@ -16,11 +16,12 @@ import java.util.Set;
 public interface AccessTransformerEngine {
 
     /**
-     * Loads an AT from the given {@code charStream}.
+     * Loads an AT from the given {@code reader}.
      *
-     * @param charStream the stream to load the AT from
+     * @param reader the reader to load the AT from
+     * @param originName the name of the origin of the AT
      */
-    void loadAT(CharStream charStream);
+    void loadAT(Reader reader, String originName) throws IOException;
 
     /**
      * Loads an AT from the given {@code path}.
