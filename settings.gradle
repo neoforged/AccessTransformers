@@ -1,7 +1,7 @@
 dependencyResolutionManagement {
     versionCatalogs {
         libs {
-            plugin('gradleutils', 'net.neoforged.gradleutils').version('3.+')
+            plugin('gradleutils', 'net.neoforged.gradleutils').version('3.0.0-alpha.12')
             plugin('shadow', 'com.github.johnrengelman.shadow').version('8.1.1')
 
             final log4j = version 'log4j', '2.12.4'
@@ -31,7 +31,7 @@ dependencyResolutionManagement {
 
             library('junit-api', 'org.junit.jupiter', 'junit-jupiter-api').versionRef(jupiter)
             library('junit-engine', 'org.junit.jupiter', 'junit-jupiter-engine').versionRef(jupiter)
-            library('powermock', 'org.powermock:powermock-core:2.0+')
+            library('powermock', 'org.powermock:powermock-core:2.0.9')
         }
     }
 }
