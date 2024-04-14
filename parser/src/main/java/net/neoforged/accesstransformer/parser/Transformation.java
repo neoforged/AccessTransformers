@@ -2,8 +2,9 @@ package net.neoforged.accesstransformer.parser;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-public class Transformation {
+public final class Transformation {
     private FinalState finalState;
     private Modifier modifier;
     private List<String> origins = new ArrayList<>();
@@ -54,5 +55,17 @@ public class Transformation {
     @Override
     public String toString() {
         return modifier + " " + finalState + " " + String.join(", ", origins);
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (!(object instanceof Transformation transformation)) return false;
+        return finalState == transformation.finalState && modifier == transformation.modifier;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(finalState, modifier);
     }
 }
