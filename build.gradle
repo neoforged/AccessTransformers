@@ -55,7 +55,6 @@ println('Version: ' + version)
 
 sourceSets {
     testJars
-    parser
 }
 
 jar.manifest = manifest {
