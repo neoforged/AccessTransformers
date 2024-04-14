@@ -1,7 +1,7 @@
 package net.neoforged.accesstransformer;
 
 import net.neoforged.accesstransformer.api.AccessTransformerEngine;
-import net.neoforged.accesstransformer.parser.AccessTransformerList;
+import net.neoforged.accesstransformer.parser.AccessTransformerFiles;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
@@ -27,23 +27,23 @@ public class AccessTransformerEngineImpl implements AccessTransformerEngine {
         }
         // list of methods that may have changed from private visibility, and therefore will need INVOKE_SPECIAL changed to INVOKE_VIRTUAL
         final Set<String> privateChanged = new HashSet<>();
-        final Map<TargetType, Map<String,AccessTransformer>> transformersForTarget = masterList.getTransformersForTarget(classType);
+        final Map<TargetType, Map<String, AccessTransformer<?>>> transformersForTarget = masterList.getTransformersForTarget(classType);
         if (transformersForTarget.containsKey(TargetType.CLASS)) {
             // apply class transform and any wild cards
-            transformersForTarget.get(TargetType.CLASS).forEach((n,at) -> at.applyModifier(clazzNode, ClassNode.class, privateChanged));
+            transformersForTarget.get(TargetType.CLASS).forEach((n,at) -> AccessTransformer.applyTransform(at, clazzNode, privateChanged));
         }
 
         if (transformersForTarget.containsKey(TargetType.FIELD)) {
-            final Map<String, AccessTransformer> fieldTransformers = transformersForTarget.get(TargetType.FIELD);
+            final Map<String, AccessTransformer<?>> fieldTransformers = transformersForTarget.get(TargetType.FIELD);
             clazzNode.fields.stream()
                     .filter(fn -> fieldTransformers.containsKey(fn.name))
-                    .forEach(fn -> fieldTransformers.get(fn.name).applyModifier(fn, FieldNode.class, privateChanged));
+                    .forEach(fn -> AccessTransformer.applyTransform(fieldTransformers.get(fn.name), fn, privateChanged));
         }
         if (transformersForTarget.containsKey(TargetType.METHOD)) {
-            final Map<String, AccessTransformer> methodTransformers = transformersForTarget.get(TargetType.METHOD);
+            final Map<String, AccessTransformer<?>> methodTransformers = transformersForTarget.get(TargetType.METHOD);
             clazzNode.methods.stream()
                     .filter(mn -> methodTransformers.containsKey(mn.name + mn.desc))
-                    .forEach(mn -> methodTransformers.get(mn.name + mn.desc).applyModifier(mn, MethodNode.class, privateChanged));
+                    .forEach(mn -> AccessTransformer.applyTransform(methodTransformers.get(mn.name + mn.desc), mn, privateChanged));
         }
         if (!privateChanged.isEmpty()) {
             clazzNode.methods.forEach(mn ->
@@ -75,5 +75,10 @@ public class AccessTransformerEngineImpl implements AccessTransformerEngine {
     @Override
     public Set<Type> getTargets() {
         return masterList.getTargets();
+    }
+
+    @Override
+    public boolean containsClassTarget(Type type) {
+        return masterList.containsClassTarget(type);
     }
 }

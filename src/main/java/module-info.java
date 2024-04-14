@@ -3,6 +3,7 @@ module net.neoforged.accesstransformer {
 
     requires transitive org.objectweb.asm;
     requires transitive org.objectweb.asm.tree;
+    requires transitive net.neoforged.accesstransformer.parser;
 
     requires org.slf4j;
 }

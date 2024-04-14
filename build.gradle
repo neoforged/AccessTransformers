@@ -55,6 +55,7 @@ println('Version: ' + version)
 
 sourceSets {
     testJars
+    parser
 }
 
 jar.manifest = manifest {
@@ -93,6 +94,7 @@ dependencies {
 
     api(libs.slf4j)
     api(libs.bundles.asm)
+    api(project(':parser'))
 }
 
 // Build the module path manually because Gradle won't do it for non-modular projects.

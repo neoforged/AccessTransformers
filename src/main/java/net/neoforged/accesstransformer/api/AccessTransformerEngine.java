@@ -46,6 +46,12 @@ public interface AccessTransformerEngine {
     Set<Type> getTargets();
 
     /**
+     * {@return true if the given {@code type} is targeted by the loaded ATs}
+     * @param type the type to check
+     */
+    boolean containsClassTarget(Type type);
+
+    /**
      * Attempts to transform the given {@code classNode}, and apply ATs, if any.
      * @param classNode the class to transform
      * @param name the name of the class

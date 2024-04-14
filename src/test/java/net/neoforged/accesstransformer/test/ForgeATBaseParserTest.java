@@ -15,7 +15,7 @@ public class ForgeATBaseParserTest {
     public void testLoadingForgeAT() throws IOException, URISyntaxException {
         final Path path = Paths.get(getClass().getClassLoader().getResource("forge_at.cfg").toURI());
         try (Reader reader = Files.newBufferedReader(path)) {
-            AtParser.parse(reader, "forge_at.cfg");
+            AtParser.parse(reader, "forge_at.cfg", (k, v) -> {});
         }
     }
 }

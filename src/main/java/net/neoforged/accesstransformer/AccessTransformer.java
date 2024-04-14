@@ -1,99 +1,121 @@
 package net.neoforged.accesstransformer;
 
-import org.objectweb.asm.Opcodes;
+import net.neoforged.accesstransformer.parser.Target;
+import net.neoforged.accesstransformer.parser.Transformation;
+import org.objectweb.asm.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.function.IntFunction;
-import java.util.stream.Collectors;
+import java.util.*;
 
-public class AccessTransformer {
+public abstract class AccessTransformer<T> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccessTransformer.class);
     private static final Marker AXFORM_MARKER = MarkerFactory.getMarker("AXFORM");
-    private final Target<?> memberTarget;
-    private final Modifier targetAccess;
-    private final FinalState targetFinalState;
-    private final List<String> origins = new ArrayList<>(1);
+    private final Type type;
+    private final Transformation transformation;
+    private final Target target;
 
-    public AccessTransformer(final Target<?> target, final Modifier modifier, final FinalState finalState, String origin, final int lineNumber) {
-        this.memberTarget = target;
-        this.targetAccess = modifier;
-        this.targetFinalState = finalState;
-        this.origins.add(origin+":"+lineNumber);
+    public AccessTransformer(Target target, Transformation transformation) {
+        this.transformation = transformation;
+        this.target = target;
+        this.type = Type.getType("L" + target.className().replace('.', '/') + ";");
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> Target<T> getTarget() {
-        return (Target<T>)this.memberTarget;
-    }
-
-    public AccessTransformer mergeStates(final AccessTransformer at2, final String resourceName) {
-        final Modifier newModifier = Modifier.values()[Math.min(this.targetAccess.ordinal(), at2.targetAccess.ordinal())];
-        final FinalState newFinalState = FinalState.values()[this.targetFinalState.ordinal() | at2.targetFinalState.ordinal()];
-        final AccessTransformer accessTransformer = new AccessTransformer(memberTarget, newModifier, newFinalState, resourceName + ":merge", 0);
-        accessTransformer.origins.addAll(this.origins);
-        accessTransformer.origins.addAll(at2.origins);
-        return accessTransformer;
-    }
-
-    public boolean isValid() {
-        return targetFinalState != FinalState.CONFLICT;
-    }
-
-    public List<String> getOrigins() {
-        return origins;
-    }
-
-    public <T> void applyModifier(final T node, final Class<T> type, final Set<String> privateChanged) {
-        LOGGER.debug(AXFORM_MARKER,"Transforming {} to access {} and {}", getTarget(), targetAccess, targetFinalState);
-        getTarget().apply(node, targetAccess, targetFinalState, privateChanged);
-    }
-
-    public enum Modifier {
-        PUBLIC(Opcodes.ACC_PUBLIC), PROTECTED(Opcodes.ACC_PROTECTED), DEFAULT(0), PRIVATE(Opcodes.ACC_PRIVATE);
-    	private static final Modifier[] lookup = new Modifier[4];
-        private final int accFlag;
-
-        static {
-            Arrays.stream(Modifier.values()).forEach(m->lookup[firstBit(m.accFlag)] = m);
-        }
-
-        Modifier(final int accFlag) {
-            this.accFlag = accFlag;
-        }
-
-        private static int firstBit(int flags) {
-            return flags == 0 ? 0 : firstBit(flags >>> 1) + 1;
-        }
-
-        public int mergeWith(final int access) {
-            Modifier floor = lookup[firstBit(access & 7)];
-            return (access & ~7) | values()[Math.min(floor.ordinal(), this.ordinal())].accFlag;
+    public static AccessTransformer<?> of(Target target, Transformation transformation) {
+        if (target instanceof Target.MethodTarget methodTarget) {
+            return new MethodAccessTransformer(methodTarget, transformation);
+        } else if (target instanceof Target.FieldTarget fieldTarget) {
+            return new FieldAccessTransformer(fieldTarget, transformation);
+        } else if (target instanceof Target.ClassTarget classTarget) {
+            return new ClassAccessTransformer(classTarget, transformation);
+        } else if (target instanceof Target.InnerClassTarget innerClassTarget) {
+            return new InnerClassAccessTransformer(innerClassTarget, transformation);
+        } else if (target instanceof Target.WildcardFieldTarget wildcardFieldTarget) {
+            return new WildcardAccessTransformer(wildcardFieldTarget, transformation);
+        } else if (target instanceof Target.WildcardMethodTarget wildcardMethodTarget) {
+            return new WildcardAccessTransformer(wildcardMethodTarget, transformation);
+        } else {
+            // It's sealed, this shouldn't happen - we'll want to make this whole thing a switch with J21
+            throw new IllegalArgumentException("Unknown target type: " + target.getClass());
         }
     }
 
-    public enum FinalState {
-        LEAVE(i->i), MAKEFINAL(i->i | Opcodes.ACC_FINAL), REMOVEFINAL(i->i & ~Opcodes.ACC_FINAL), CONFLICT(i->i);
-        private IntFunction<Integer> function;
+    public TargetType getType() {
+        return TargetType.CLASS;
+    }
 
-        FinalState(final IntFunction<Integer> function) {
-            this.function = function;
-        }
+    public String getClassName() {
+        return target.className();
+    }
 
-        public int mergeWith(final int access) {
-            return function.apply(access);
-        }
+    public final Type getASMType() {
+        return type;
+    }
+
+    public final Transformation getTransformation() {
+        return transformation;
     }
 
     @Override
     public String toString() {
-        return Objects.toString(memberTarget) + " " + Objects.toString(targetAccess) + " " + Objects.toString(targetFinalState) + " " + Objects.toString(origins.stream().map(Object::toString).collect(Collectors.joining(", ")));
+        return target + " " + transformation;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (!(obj instanceof AccessTransformer<?> at2)) return false;
+        return Objects.equals(target, at2.target) &&
+               Objects.equals(transformation, at2.transformation);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(target, transformation);
+    }
+
+    private static final Transformation.Modifier[] lookup = new Transformation.Modifier[4];
+    private static int accFlag(Transformation.Modifier modifier) {
+        return switch (modifier) {
+            case PUBLIC -> Opcodes.ACC_PUBLIC;
+            case PROTECTED -> Opcodes.ACC_PROTECTED;
+            case PRIVATE -> Opcodes.ACC_PRIVATE;
+            case DEFAULT -> 0;
+        };
+    }
+
+    static {
+        Arrays.stream(Transformation.Modifier.values()).forEach(m->lookup[firstBit(accFlag(m))] = m);
+    }
+
+    private static int firstBit(int flags) {
+        return flags == 0 ? 0 : firstBit(flags >>> 1) + 1;
+    }
+
+    private static int mergeWith(int access, Transformation.Modifier modifier) {
+        Transformation.Modifier floor = lookup[firstBit(access & 7)];
+        return (access & ~7) | accFlag(Transformation.Modifier.values()[Math.min(floor.ordinal(), modifier.ordinal())]);
+    }
+
+    private static int mergeWith(int access, Transformation.FinalState finalState) {
+        return switch (finalState) {
+            case LEAVE, CONFLICT -> access;
+            case MAKEFINAL -> access | Opcodes.ACC_FINAL;
+            case REMOVEFINAL -> access & ~Opcodes.ACC_FINAL;
+        };
+    }
+
+    public static int mergeWith(int access, Transformation.Modifier modifier, Transformation.FinalState finalState) {
+        return mergeWith(mergeWith(access, modifier), finalState);
+    }
+
+    public abstract String targetName();
+    protected abstract void apply(final T node, Set<String> privateChanged);
+
+    @SuppressWarnings("unchecked")
+    public static <T> void applyTransform(final AccessTransformer<?> accessTransformer, final T node, final Set<String> privateChanged) {
+        LOGGER.debug(AXFORM_MARKER,"Transforming {} to access {} and {}", accessTransformer, accessTransformer.transformation.modifier(), accessTransformer.transformation.finalState());
+        ((AccessTransformer<T>) accessTransformer).apply(node, privateChanged);
     }
 }

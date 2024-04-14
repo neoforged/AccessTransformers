@@ -19,7 +19,10 @@ public class BatATParseTest {
         try (
                 InputStream stream = getClass().getClassLoader().getResourceAsStream("bad_at.cfg");
                 Reader reader = new InputStreamReader(stream)) {
-            List<AccessTransformer> transformers = AtParser.parse(reader, "bad_at.cfg");
+            List<AccessTransformer<?>> transformers = new ArrayList<>();
+            AtParser.parse(reader, "bad_at.cfg", ((target, transformation) -> {
+                transformers.add(AccessTransformer.of(target, transformation));
+            }));
             List<String> lines = new ArrayList<>();
             transformers.forEach(t -> lines.add(t.toString()));
             final List<String> expectation = Files.readAllLines(Paths.get(getClass().getClassLoader().getResource("bad_at.cfg.txt").toURI()));
