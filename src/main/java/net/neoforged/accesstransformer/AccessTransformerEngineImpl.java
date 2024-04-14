@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Spliterator;
@@ -81,5 +82,10 @@ public class AccessTransformerEngineImpl implements AccessTransformerEngine {
     @Override
     public Set<Type> getTargets() {
         return masterList.getTargets();
+    }
+
+    @Override
+    public Map<String, List<AccessTransformer>> getAccessTransformers() {
+        return masterList.getAccessTransformers();
     }
 }
