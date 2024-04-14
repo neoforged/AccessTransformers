@@ -8,6 +8,8 @@ import org.objectweb.asm.tree.ClassNode;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -51,6 +53,11 @@ public interface AccessTransformerEngine {
      * @return {@code true} if the class was transformed, or {@code false} otherwise
      */
     boolean transform(ClassNode classNode, Type name);
+
+    /**
+     * {@return the loaded access transformers}
+     */
+    Map<String, List<AccessTransformer>> getAccessTransformers();
 
     /**
      * {@return a new AT engine}

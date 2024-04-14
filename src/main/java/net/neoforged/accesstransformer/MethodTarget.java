@@ -1,5 +1,8 @@
 package net.neoforged.accesstransformer;
 
+import net.neoforged.accesstransformer.api.AccessTransformer;
+import net.neoforged.accesstransformer.api.Target;
+import net.neoforged.accesstransformer.api.TargetType;
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.*;
 

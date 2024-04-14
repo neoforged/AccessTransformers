@@ -1,4 +1,4 @@
-package net.neoforged.accesstransformer;
+package net.neoforged.accesstransformer.api;
 
 import org.objectweb.asm.Opcodes;
 import org.slf4j.Logger;
@@ -54,6 +54,14 @@ public class AccessTransformer {
     public <T> void applyModifier(final T node, final Class<T> type, final Set<String> privateChanged) {
         LOGGER.debug(AXFORM_MARKER,"Transforming {} to access {} and {}", getTarget(), targetAccess, targetFinalState);
         getTarget().apply(node, targetAccess, targetFinalState, privateChanged);
+    }
+
+    public Modifier getTargetAccess() {
+        return targetAccess;
+    }
+
+    public FinalState getTargetFinalState() {
+        return targetFinalState;
     }
 
     public enum Modifier {

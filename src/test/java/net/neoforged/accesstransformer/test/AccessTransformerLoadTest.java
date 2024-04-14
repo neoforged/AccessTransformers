@@ -3,7 +3,7 @@ package net.neoforged.accesstransformer.test;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import net.neoforged.accesstransformer.AccessTransformer;
+import net.neoforged.accesstransformer.api.AccessTransformer;
 import net.neoforged.accesstransformer.ml.AccessTransformerService;
 import net.neoforged.accesstransformer.parser.AccessTransformerList;
 import org.junit.jupiter.api.Test;

@@ -1,4 +1,4 @@
-package net.neoforged.accesstransformer;
+package net.neoforged.accesstransformer.api;
 
 import org.objectweb.asm.*;
 
@@ -6,7 +6,7 @@ import java.util.*;
 
 public abstract class Target<T> {
     private final String className;
-    private Type type;
+    private final Type type;
 
     public Target(String className) {
         this.className = className;
@@ -43,4 +43,11 @@ public abstract class Target<T> {
 
     public abstract String targetName();
     public abstract void apply(final T node, final AccessTransformer.Modifier targetAccess, final AccessTransformer.FinalState targetFinalState, Set<String> privateChanged);
+
+    /**
+     * {@return the targets this target applies to as a wildcard, or {@code null} if it is not a wildcard}
+     */
+    public TargetType getWildcardTarget() {
+        return null;
+    }
 }

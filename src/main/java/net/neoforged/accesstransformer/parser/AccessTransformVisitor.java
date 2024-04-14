@@ -1,5 +1,7 @@
 package net.neoforged.accesstransformer.parser;
 
+import net.neoforged.accesstransformer.api.AccessTransformer;
+import net.neoforged.accesstransformer.api.Target;
 import net.neoforged.accesstransformer.generated.*;
 
 import net.neoforged.accesstransformer.*;

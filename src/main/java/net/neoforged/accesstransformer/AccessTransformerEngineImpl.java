@@ -1,6 +1,8 @@
 package net.neoforged.accesstransformer;
 
+import net.neoforged.accesstransformer.api.AccessTransformer;
 import net.neoforged.accesstransformer.api.AccessTransformerEngine;
+import net.neoforged.accesstransformer.api.TargetType;
 import net.neoforged.accesstransformer.parser.AccessTransformerList;
 import org.antlr.v4.runtime.CharStream;
 import org.objectweb.asm.Opcodes;
@@ -31,7 +33,7 @@ public class AccessTransformerEngineImpl implements AccessTransformerEngine {
         }
         // list of methods that may have changed from private visibility, and therefore will need INVOKE_SPECIAL changed to INVOKE_VIRTUAL
         final Set<String> privateChanged = new HashSet<>();
-        final Map<TargetType, Map<String,AccessTransformer>> transformersForTarget = masterList.getTransformersForTarget(classType);
+        final Map<TargetType, Map<String, AccessTransformer>> transformersForTarget = masterList.getTransformersForTarget(classType);
         if (transformersForTarget.containsKey(TargetType.CLASS)) {
             // apply class transform and any wild cards
             transformersForTarget.get(TargetType.CLASS).forEach((n,at) -> at.applyModifier(clazzNode, ClassNode.class, privateChanged));

@@ -2,7 +2,7 @@ package net.neoforged.accesstransformer.parser;
 
 import java.util.*;
 
-import net.neoforged.accesstransformer.AccessTransformer;
+import net.neoforged.accesstransformer.api.AccessTransformer;
 
 public final class ModifierProcessor {
     private ModifierProcessor() {}

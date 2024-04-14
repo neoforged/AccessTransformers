@@ -3,8 +3,8 @@ package net.neoforged.accesstransformer.test;
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.Opcodes;
 
-import static net.neoforged.accesstransformer.AccessTransformer.FinalState.*;
-import static net.neoforged.accesstransformer.AccessTransformer.Modifier.*;
+import static net.neoforged.accesstransformer.api.AccessTransformer.FinalState.*;
+import static net.neoforged.accesstransformer.api.AccessTransformer.Modifier.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
