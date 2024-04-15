@@ -16,14 +16,12 @@ import java.util.Set;
 public abstract class AccessTransformer<T> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccessTransformer.class);
     private static final Marker AXFORM_MARKER = MarkerFactory.getMarker("AXFORM");
-    private final Type type;
     private final Transformation transformation;
     private final Target target;
 
     public AccessTransformer(Target target, Transformation transformation) {
         this.transformation = transformation;
         this.target = target;
-        this.type = Type.getType("L" + target.className().replace('.', '/') + ";");
     }
 
     public static AccessTransformer<?> of(Target target, Transformation transformation) {
@@ -43,10 +41,6 @@ public abstract class AccessTransformer<T> {
 
     public String getClassName() {
         return target.className();
-    }
-
-    public final Type getASMType() {
-        return type;
     }
 
     public final Transformation getTransformation() {
