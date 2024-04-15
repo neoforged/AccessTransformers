@@ -2,9 +2,9 @@ package net.neoforged.accesstransformer;
 
 import net.neoforged.accesstransformer.parser.Target;
 import net.neoforged.accesstransformer.parser.Transformation;
-import org.objectweb.asm.tree.*;
+import org.objectweb.asm.tree.FieldNode;
 
-import java.util.*;
+import java.util.Set;
 
 public class FieldAccessTransformer extends AccessTransformer<FieldNode> {
     private final String fieldName;

@@ -2,7 +2,8 @@ package net.neoforged.accesstransformer;
 
 import net.neoforged.accesstransformer.parser.Target;
 import net.neoforged.accesstransformer.parser.Transformation;
-import org.objectweb.asm.*;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
@@ -24,22 +25,14 @@ public abstract class AccessTransformer<T> {
     }
 
     public static AccessTransformer<?> of(Target target, Transformation transformation) {
-        if (target instanceof Target.MethodTarget methodTarget) {
-            return new MethodAccessTransformer(methodTarget, transformation);
-        } else if (target instanceof Target.FieldTarget fieldTarget) {
-            return new FieldAccessTransformer(fieldTarget, transformation);
-        } else if (target instanceof Target.ClassTarget classTarget) {
-            return new ClassAccessTransformer(classTarget, transformation);
-        } else if (target instanceof Target.InnerClassTarget innerClassTarget) {
-            return new InnerClassAccessTransformer(innerClassTarget, transformation);
-        } else if (target instanceof Target.WildcardFieldTarget wildcardFieldTarget) {
-            return new WildcardAccessTransformer(wildcardFieldTarget, transformation);
-        } else if (target instanceof Target.WildcardMethodTarget wildcardMethodTarget) {
-            return new WildcardAccessTransformer(wildcardMethodTarget, transformation);
-        } else {
-            // It's sealed, this shouldn't happen - we'll want to make this whole thing a switch with J21
-            throw new IllegalArgumentException("Unknown target type: " + target.getClass());
-        }
+        return switch (target) {
+            case Target.MethodTarget methodTarget -> new MethodAccessTransformer(methodTarget, transformation);
+            case Target.FieldTarget fieldTarget -> new FieldAccessTransformer(fieldTarget, transformation);
+            case Target.ClassTarget classTarget -> new ClassAccessTransformer(classTarget, transformation);
+            case Target.InnerClassTarget innerClassTarget -> new InnerClassAccessTransformer(innerClassTarget, transformation);
+            case Target.WildcardFieldTarget wildcardFieldTarget -> new WildcardAccessTransformer(wildcardFieldTarget, transformation);
+            case Target.WildcardMethodTarget wildcardMethodTarget -> new WildcardAccessTransformer(wildcardMethodTarget, transformation);
+        };
     }
 
     public TargetType getType() {

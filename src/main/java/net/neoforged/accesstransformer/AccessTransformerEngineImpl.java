@@ -1,19 +1,20 @@
 package net.neoforged.accesstransformer;
 
 import net.neoforged.accesstransformer.api.AccessTransformerEngine;
-import net.neoforged.accesstransformer.parser.AccessTransformerFiles;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodInsnNode;
-import org.objectweb.asm.tree.MethodNode;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.stream.StreamSupport;
 
 public class AccessTransformerEngineImpl implements AccessTransformerEngine {
