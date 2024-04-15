@@ -9,7 +9,9 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.Set;
 
 public abstract class AccessTransformer<T> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccessTransformer.class);
