@@ -2,7 +2,6 @@ import net.neoforged.gradleutils.PomUtilsExtension.License
 
 plugins {
     alias(libs.plugins.gradleutils)
-    id 'antlr'
 }
 
 allprojects { project ->
@@ -24,7 +23,7 @@ allprojects { project ->
     java {
         modularity.inferModulePath = true
         withSourcesJar()
-        toolchain.languageVersion = JavaLanguageVersion.of(17)
+        toolchain.languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
@@ -58,10 +57,6 @@ sourceSets {
     testJars
 }
 
-compileJava {
-    dependsOn generateGrammarSource
-}
-
 jar.manifest = manifest {
     attributes([
             'Specification-Title': 'accesstransformers',
@@ -79,22 +74,11 @@ tasks.register('testsJar', Jar) {
     from sourceSets.testJars.output
 }
 
-tasks.named('sourcesJar', Jar) {
-    dependsOn generateGrammarSource
-}
-
 changelog {
     from '10.0'
 }
 
 build.dependsOn testsJar
-
-configurations {
-    api {
-        extendsFrom = extendsFrom.findAll { it != configurations.antlr }
-    }
-    compileOnly.extendsFrom antlr
-}
 
 dependencies {
     testImplementation(libs.junit.api)
@@ -107,11 +91,9 @@ dependencies {
     testImplementation(libs.bundles.log4j)
     testRuntimeOnly(libs.junit.engine)
 
-    antlr(libs.antlr)
-
     api(libs.slf4j)
     api(libs.bundles.asm)
-    api(libs.antlr.runtime)
+    api(project(':parser'))
 }
 
 // Build the module path manually because Gradle won't do it for non-modular projects.
@@ -168,9 +150,4 @@ publishing {
     repositories {
         maven gradleutils.publishingMaven
     }
-}
-
-generateGrammarSource {
-    arguments += ['-visitor', '-package', 'net.neoforged.accesstransformer.generated']
-    outputDirectory = file("${project.buildDir}/generated-src/antlr/main/net/neoforged/accesstransformer/generated/")
 }

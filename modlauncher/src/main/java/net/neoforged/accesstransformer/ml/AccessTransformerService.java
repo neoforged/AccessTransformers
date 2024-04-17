@@ -25,6 +25,6 @@ public class AccessTransformerService implements ILaunchPluginService {
 
     @Override
     public EnumSet<Phase> handlesClass(final Type classType, final boolean isEmpty) {
-        return !isEmpty && engine.getTargets().contains(classType) ? YAY : NAY;
+        return !isEmpty && engine.containsClassTarget(classType) ? YAY : NAY;
     }
 }

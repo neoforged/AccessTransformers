@@ -131,7 +131,7 @@ public class TransformerProcessor {
                                     final ClassNode cn = new ClassNode();
                                     classReader.accept(cn, 0);
                                     final Type type = Type.getType('L'+cn.name.replaceAll("\\.","/")+';');
-                                    if (ACCESS_TRANSFORMERS.getTargets().contains(type)) {
+                                    if (ACCESS_TRANSFORMERS.containsClassTarget(type)) {
                                         LOGGER.debug(AXFORM_MARKER,"Transforming class {}", type);
                                         ACCESS_TRANSFORMERS.transform(cn, type);
                                         ClassWriter cw = new ClassWriter(Opcodes.ASM5);

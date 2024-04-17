@@ -2,9 +2,10 @@ package net.neoforged.accesstransformer.test;
 
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.Opcodes;
+import net.neoforged.accesstransformer.AccessTransformer;
 
-import static net.neoforged.accesstransformer.AccessTransformer.FinalState.*;
-import static net.neoforged.accesstransformer.AccessTransformer.Modifier.*;
+import static net.neoforged.accesstransformer.parser.Transformation.FinalState.*;
+import static net.neoforged.accesstransformer.parser.Transformation.Modifier.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -17,15 +18,15 @@ public class ATRulesTest {
         int prot = Opcodes.ACC_PROTECTED; // 0x2
         int pub = Opcodes.ACC_PUBLIC; // 0x1
         assertAll(
-            ()->assertEquals(deflt, DEFAULT.mergeWith(privte), "Upgrade private to default"),
-            ()->assertEquals(prot, PROTECTED.mergeWith(privte), "Upgrade private to protected"),
-            ()->assertEquals(pub, PUBLIC.mergeWith(privte), "Upgrade private to public"),
-            ()->assertEquals(pub, PRIVATE.mergeWith(pub), "No downgrade public to private"),
-            ()->assertEquals(pub, DEFAULT.mergeWith(pub), "No downgrade public to default"),
-            ()->assertEquals(pub, PROTECTED.mergeWith(pub), "No downgrade public to protected"),
-            ()->assertEquals(prot, PRIVATE.mergeWith(prot), "No downgrade prot to private"),
-            ()->assertEquals(prot, DEFAULT.mergeWith(prot), "No downgrade prot to default"),
-            ()->assertEquals(deflt, PRIVATE.mergeWith(deflt), "No downgrade default to private")
+            ()->assertEquals(deflt, AccessTransformer.mergeWith(privte, DEFAULT, LEAVE), "Upgrade private to default"),
+            ()->assertEquals(prot, AccessTransformer.mergeWith(privte, PROTECTED, LEAVE), "Upgrade private to protected"),
+            ()->assertEquals(pub, AccessTransformer.mergeWith(privte, PUBLIC, LEAVE), "Upgrade private to public"),
+            ()->assertEquals(pub, AccessTransformer.mergeWith(pub, PRIVATE, LEAVE), "No downgrade public to private"),
+            ()->assertEquals(pub, AccessTransformer.mergeWith(pub, DEFAULT, LEAVE), "No downgrade public to default"),
+            ()->assertEquals(pub, AccessTransformer.mergeWith(pub, PROTECTED, LEAVE), "No downgrade public to protected"),
+            ()->assertEquals(prot, AccessTransformer.mergeWith(prot, PRIVATE, LEAVE), "No downgrade prot to private"),
+            ()->assertEquals(prot, AccessTransformer.mergeWith(prot, DEFAULT, LEAVE), "No downgrade prot to default"),
+            ()->assertEquals(deflt, AccessTransformer.mergeWith(deflt, PRIVATE, LEAVE), "No downgrade default to private")
         );
     }
     @Test
@@ -34,12 +35,12 @@ public class ATRulesTest {
         int notfnl = 0;
 
         assertAll(
-                ()->assertEquals(fnl, MAKEFINAL.mergeWith(fnl), "makefinal+final = final"),
-                ()->assertEquals(fnl, MAKEFINAL.mergeWith(notfnl), "makefinal+notfinal = final"),
-                ()->assertEquals(notfnl, REMOVEFINAL.mergeWith(fnl), "removefinal+final = notfinal"),
-                ()->assertEquals(notfnl, REMOVEFINAL.mergeWith(notfnl), "removefinal+notfinal = notfinal"),
-                ()->assertEquals(fnl, LEAVE.mergeWith(fnl), "leave+final = final"),
-                ()->assertEquals(notfnl, LEAVE.mergeWith(notfnl), "leave+notfinal = notfinal")
+                ()->assertEquals(fnl, AccessTransformer.mergeWith(fnl, DEFAULT, MAKEFINAL), "makefinal+final = final"),
+                ()->assertEquals(fnl, AccessTransformer.mergeWith(notfnl, DEFAULT, MAKEFINAL), "makefinal+notfinal = final"),
+                ()->assertEquals(notfnl, AccessTransformer.mergeWith(fnl, DEFAULT, REMOVEFINAL), "removefinal+final = notfinal"),
+                ()->assertEquals(notfnl, AccessTransformer.mergeWith(notfnl, DEFAULT, REMOVEFINAL), "removefinal+notfinal = notfinal"),
+                ()->assertEquals(fnl, AccessTransformer.mergeWith(fnl, DEFAULT, LEAVE), "leave+final = final"),
+                ()->assertEquals(notfnl, AccessTransformer.mergeWith(notfnl, DEFAULT, LEAVE), "leave+notfinal = notfinal")
         );
     }
 }
