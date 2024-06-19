@@ -32,7 +32,7 @@ public class AccessTransformerFiles {
 
     public void loadFromPath(final Path path) throws IOException {
         try (Reader reader = Files.newBufferedReader(path)) {
-            loadAT(reader, path.getFileName().toString());
+            loadAT(reader, path.toAbsolutePath().toString());
         }
     }
 
