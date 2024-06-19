@@ -29,7 +29,7 @@ public final class Transformation {
     }
 
     public List<String> origins() {
-        return origins;
+        return Collections.unmodifiableList(origins);
     }
 
     public enum FinalState {
@@ -51,10 +51,6 @@ public final class Transformation {
 
     public boolean isValid() {
         return finalState != FinalState.CONFLICT;
-    }
-
-    public List<String> getOrigins() {
-        return Collections.unmodifiableList(origins);
     }
 
     @Override
