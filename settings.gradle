@@ -16,6 +16,7 @@ dependencyResolutionManagement {
             library('slf4j', 'org.slf4j:slf4j-api:2.0.9')
             library('jopt', 'net.sf.jopt-simple:jopt-simple:6.0-alpha-3')
             library('jopt5', 'net.sf.jopt-simple:jopt-simple:5.0.4')
+            library('assert4j', 'org.assertj:assertj-core:3.25.1')
 
             library('log4j-api', 'org.apache.logging.log4j', 'log4j-api').versionRef(log4j)
             library('log4j-core', 'org.apache.logging.log4j', 'log4j-core').versionRef(log4j)

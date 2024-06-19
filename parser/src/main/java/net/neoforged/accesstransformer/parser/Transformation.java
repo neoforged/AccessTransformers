@@ -1,13 +1,14 @@
 package net.neoforged.accesstransformer.parser;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 public final class Transformation {
-    private FinalState finalState;
-    private Modifier modifier;
-    private List<String> origins = new ArrayList<>();
+    private final FinalState finalState;
+    private final Modifier modifier;
+    private final List<String> origins = new ArrayList<>();
 
     private Transformation(Modifier modifier, FinalState finalState) {
         this.finalState = finalState;
@@ -28,7 +29,7 @@ public final class Transformation {
     }
 
     public List<String> origins() {
-        return origins;
+        return Collections.unmodifiableList(origins);
     }
 
     public enum FinalState {
