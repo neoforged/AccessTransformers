@@ -45,6 +45,18 @@ public interface AccessTransformerEngine {
     Set<Type> getTargets();
 
     /**
+     * Looks up AT file sources of entries matching the given target
+     *
+     * @param className the class containing the target
+     * @param type the type of the target
+     * @param targetName the target's name (null for class targets, full descriptor for method targets, name for field targets)
+     * @return The list of sources specifying the given target or null if none apply
+     */
+    default Set<String> getSourcesForTarget(final String className, final TargetType type, final String targetName) {
+        return null;
+    }
+
+    /**
      * Attempts to transform the given {@code classNode}, and apply ATs, if any.
      * @param classNode the class to transform
      * @param name the name of the class

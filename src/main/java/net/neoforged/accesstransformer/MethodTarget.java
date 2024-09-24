@@ -1,5 +1,6 @@
 package net.neoforged.accesstransformer;
 
+import net.neoforged.accesstransformer.api.TargetType;
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.*;
 
@@ -63,4 +64,8 @@ public class MethodTarget extends Target<MethodNode> {
 
     }
 
+    @Override
+    public boolean matches(final String className, final TargetType type, final String targetName) {
+        return type == TargetType.METHOD && getClassName().equals(className) && this.targetName.equals(targetName);
+    }
 }
