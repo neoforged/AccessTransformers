@@ -8,6 +8,7 @@ import org.slf4j.MarkerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -48,7 +49,7 @@ public class AccessTransformer {
     }
 
     public List<String> getOrigins() {
-        return origins;
+        return Collections.unmodifiableList(origins);
     }
 
     public <T> void applyModifier(final T node, final Class<T> type, final Set<String> privateChanged) {
