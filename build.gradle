@@ -99,6 +99,7 @@ configurations {
 dependencies {
     testImplementation(libs.junit.api)
     testImplementation(libs.powermock)
+    testImplementation(libs.assert4j)
     testImplementation(libs.bsl)
     testImplementation(libs.sjh)
     testImplementation(libs.gson)
