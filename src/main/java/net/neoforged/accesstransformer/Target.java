@@ -44,6 +44,14 @@ public abstract class Target<T> {
 
     public abstract String targetName();
 
+    /**
+     * Checks whether this target matches the given target description.
+     *
+     * @param className The FQN of the class containing the target
+     * @param type The type of the target
+     * @param targetName The name of the target (ignored for {@link TargetType#CLASS} and wildcard targets)
+     * @return whether this target matches the given target description
+     */
     public abstract boolean matches(final String className, final TargetType type, final String targetName);
 
     public abstract void apply(final T node, final AccessTransformer.Modifier targetAccess, final AccessTransformer.FinalState targetFinalState, Set<String> privateChanged);
