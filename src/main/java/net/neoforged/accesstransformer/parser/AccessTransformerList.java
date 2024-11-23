@@ -40,7 +40,7 @@ public class AccessTransformerList {
                     StandardCharsets.UTF_8,
                     4096, // CharStreams.DEFAULT_BUFFER_SIZE
                     CodingErrorAction.REPLACE,
-                    path.getFileName().toString(),
+                    path.toAbsolutePath().toString(),
                     size));
         }
     }
