@@ -28,7 +28,7 @@ public class AccessTransformVisitor extends AtParserBaseVisitor<Void> {
             int idx = className.lastIndexOf('$'); //Java uses this to identify inner classes, Scala/others use it for synthetics. Either way we should be fine as it will skip over classes that don't exist.
             if (idx != -1) {
                 String parent = className.substring(0, idx);
-                accessTransformers.add(new AccessTransformer(new InnerClassTarget(parent, className.replace('.', '/')), ModifierProcessor.modifier(modifier), ModifierProcessor.finalState(modifier), this.origin, ctx.getStart().getLine()));
+                accessTransformers.add(new AccessTransformer(new InnerClassTarget(parent, className), ModifierProcessor.modifier(modifier), ModifierProcessor.finalState(modifier), this.origin, ctx.getStart().getLine()));
             }
         }
         return super.visitEntry(ctx);

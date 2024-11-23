@@ -1,6 +1,7 @@
 package net.neoforged.accesstransformer;
 
 import net.neoforged.accesstransformer.api.AccessTransformerEngine;
+import net.neoforged.accesstransformer.api.TargetType;
 import net.neoforged.accesstransformer.parser.AccessTransformerList;
 import org.antlr.v4.runtime.CharStream;
 import org.objectweb.asm.Opcodes;
@@ -79,5 +80,10 @@ public class AccessTransformerEngineImpl implements AccessTransformerEngine {
     @Override
     public Set<Type> getTargets() {
         return masterList.getTargets();
+    }
+
+    @Override
+    public Set<String> getSourcesForTarget(final String className, final TargetType type, final String targetName) {
+        return masterList.getSourcesForTarget(className, type, targetName);
     }
 }

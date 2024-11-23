@@ -1,5 +1,6 @@
 package net.neoforged.accesstransformer.parser;
 
+import net.neoforged.accesstransformer.api.TargetType;
 import net.neoforged.accesstransformer.generated.*;
 
 import net.neoforged.accesstransformer.*;
@@ -97,4 +98,17 @@ public class AccessTransformerList {
                 .collect(Collectors.groupingBy(o->o.getTarget().getType(), HashMap::new, Collectors.toMap(at->at.getTarget().targetName(), Function.identity())));
     }
 
+    public Set<String> getSourcesForTarget(final String className, final TargetType type, final String targetName) {
+        return accessTransformers.entrySet()
+                .stream()
+                .filter(e -> e.getKey().matches(className, type, targetName))
+                .map(Map.Entry::getValue)
+                .map(AccessTransformer::getOrigins)
+                .map(HashSet::new)
+                .reduce((s1, s2) -> {
+                    s1.addAll(s2);
+                    return s1;
+                })
+                .orElse(null);
+    }
 }
