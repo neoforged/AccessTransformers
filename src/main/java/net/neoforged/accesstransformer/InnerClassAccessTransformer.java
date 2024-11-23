@@ -11,7 +11,7 @@ public class InnerClassAccessTransformer extends AccessTransformer<ClassNode> {
 
     public InnerClassAccessTransformer(final Target.InnerClassTarget target, final Transformation transformation) {
         super(target, transformation);
-        this.innerName = target.innerName();
+        this.innerName = target.innerName().replace('.', '/');
     }
 
     @Override
