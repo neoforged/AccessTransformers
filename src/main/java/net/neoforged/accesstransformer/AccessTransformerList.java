@@ -2,6 +2,7 @@ package net.neoforged.accesstransformer;
 
 import net.neoforged.accesstransformer.parser.AccessTransformerFiles;
 import net.neoforged.accesstransformer.parser.Target;
+import net.neoforged.accesstransformer.parser.TargetType;
 import net.neoforged.accesstransformer.parser.Transformation;
 import org.objectweb.asm.Type;
 
@@ -10,6 +11,7 @@ import java.io.Reader;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -56,5 +58,20 @@ public class AccessTransformerList {
                         HashMap::new,
                         Collectors.toMap((Function<AccessTransformer<?>, String>) AccessTransformer::targetName, Function.<AccessTransformer<?>>identity())
                 ));
+    }
+
+    public Set<String> getSourcesForTarget(final String className, final TargetType type, final String targetName) {
+        return atFiles.getAccessTransformers()
+                .entrySet()
+                .stream()
+                .filter(e -> e.getKey().matches(className, type, targetName))
+                .map(Map.Entry::getValue)
+                .map(Transformation::origins)
+                .map(HashSet::new)
+                .reduce((s1, s2) -> {
+                    s1.addAll(s2);
+                    return s1;
+                })
+                .orElse(null);
     }
 }

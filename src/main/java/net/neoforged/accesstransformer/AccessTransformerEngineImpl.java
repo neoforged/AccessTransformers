@@ -1,6 +1,7 @@
 package net.neoforged.accesstransformer;
 
 import net.neoforged.accesstransformer.api.AccessTransformerEngine;
+import net.neoforged.accesstransformer.parser.TargetType;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
@@ -81,5 +82,10 @@ public class AccessTransformerEngineImpl implements AccessTransformerEngine {
     @Override
     public boolean containsClassTarget(Type type) {
         return masterList.containsClassTarget(type);
+    }
+
+    @Override
+    public Set<String> getSourcesForTarget(final String className, final TargetType type, final String targetName) {
+        return masterList.getSourcesForTarget(className, type, targetName);
     }
 }

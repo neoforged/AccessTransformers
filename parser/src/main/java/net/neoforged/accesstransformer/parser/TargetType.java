@@ -1,4 +1,4 @@
-package net.neoforged.accesstransformer;
+package net.neoforged.accesstransformer.parser;
 
 public enum TargetType {
     FIELD, METHOD, CLASS;

@@ -1,6 +1,7 @@
 package net.neoforged.accesstransformer;
 
 import net.neoforged.accesstransformer.parser.Target;
+import net.neoforged.accesstransformer.parser.TargetType;
 import net.neoforged.accesstransformer.parser.Transformation;
 import org.objectweb.asm.tree.FieldNode;
 
