@@ -25,6 +25,7 @@ dependencyResolutionManagement {
             library('junit-api', 'org.junit.jupiter', 'junit-jupiter-api').versionRef(jupiter)
             library('junit-engine', 'org.junit.jupiter', 'junit-jupiter-engine').versionRef(jupiter)
             library('powermock', 'org.powermock:powermock-core:2.0.9')
+            library('annotations', 'org.jetbrains:annotations:26.0.2')
         }
     }
 }

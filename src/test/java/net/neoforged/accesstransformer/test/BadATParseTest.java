@@ -13,7 +13,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class BatATParseTest {
+class BadATParseTest {
     @Test
     public void testParseBadAT() throws IOException, URISyntaxException {
         try (
