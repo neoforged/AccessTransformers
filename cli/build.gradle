@@ -16,11 +16,6 @@ shadowJar {
         attributes('Main-Class': 'net.neoforged.accesstransformer.cli.TransformerProcessor')
         attributes('Multi-Release': 'true')
     }
-    dependencies {
-        exclude(dependency {
-            it.moduleName == 'antlr4'
-        })
-    }
 }
 
 artifacts {
