@@ -15,7 +15,7 @@ public class AccessTransformerPresenceTest {
     public void testSourceLookup() throws IOException, URISyntaxException {
         final AccessTransformerList atLoader = new AccessTransformerList();
 
-        Path filePath = Path.of(getClass().getClassLoader().getResource("forge_at.cfg").toURI());
+        Path filePath = Path.of(getClass().getClassLoader().getResource("test_at.cfg").toURI());
         atLoader.loadFromPath(filePath);
 
         String sourcePrefix = filePath.toString();
