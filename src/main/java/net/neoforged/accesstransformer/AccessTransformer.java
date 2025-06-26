@@ -1,9 +1,9 @@
 package net.neoforged.accesstransformer;
 
 import net.neoforged.accesstransformer.parser.Target;
+import net.neoforged.accesstransformer.parser.TargetType;
 import net.neoforged.accesstransformer.parser.Transformation;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
