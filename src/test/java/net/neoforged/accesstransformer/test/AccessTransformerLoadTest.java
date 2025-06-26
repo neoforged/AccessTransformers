@@ -5,7 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import net.neoforged.accesstransformer.AccessTransformer;
 import net.neoforged.accesstransformer.AccessTransformerList;
-import net.neoforged.accesstransformer.ml.AccessTransformerService;
+import net.neoforged.accesstransformer.api.AccessTransformerEngine;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.powermock.reflect.Whitebox;
@@ -30,11 +30,11 @@ public class AccessTransformerLoadTest {
 
     @Test
     public void testLoadATFromJar() throws IOException, URISyntaxException {
-        final AccessTransformerService mls = new AccessTransformerService();
+        var engine = AccessTransformerEngine.newEngine();
         try (final FileSystem jarFS = FileSystems.newFileSystem(FileSystems.getDefault().getPath("src","test","resources","testatmod.jar"), getClass().getClassLoader())) {
             final Path atPath = jarFS.getPath("META-INF", "forge_at.cfg");
-            mls.engine.loadATFromPath(atPath);
-            final AccessTransformerList list = Whitebox.getInternalState(mls.engine, "masterList");
+            engine.loadATFromPath(atPath);
+            final AccessTransformerList list = Whitebox.getInternalState(engine, "masterList");
             final Map<String, List<AccessTransformer<?>>> accessTransformers = list.getAccessTransformers();
             testText(accessTransformers, atPath);
         }

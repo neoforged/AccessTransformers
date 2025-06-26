@@ -6,16 +6,11 @@ dependencyResolutionManagement {
 
             final log4j = version 'log4j', '2.12.4'
             final asm = version 'asm', '9.7'
-            final antlr = version 'antlr', '4.13.1'
             final jupiter = version 'jupiter', '5.7.2'
 
-            library('modlauncher', 'cpw.mods:modlauncher:10.1.7')
-            library('sjh', 'cpw.mods:securejarhandler:2.1.11')
-            library('bsl', 'cpw.mods:bootstraplauncher:1.1.5')
             library('gson', 'com.google.code.gson:gson:2.8.9')
             library('slf4j', 'org.slf4j:slf4j-api:2.0.9')
             library('jopt', 'net.sf.jopt-simple:jopt-simple:6.0-alpha-3')
-            library('jopt5', 'net.sf.jopt-simple:jopt-simple:5.0.4')
             library('assert4j', 'org.assertj:assertj-core:3.25.1')
 
             library('log4j-api', 'org.apache.logging.log4j', 'log4j-api').versionRef(log4j)
@@ -27,9 +22,6 @@ dependencyResolutionManagement {
             library('asm-commons', 'org.ow2.asm', 'asm-commons').versionRef(asm)
             bundle('asm', ['asm-core', 'asm-tree', 'asm-commons'])
 
-            library('antlr', 'org.antlr', 'antlr4').versionRef(antlr)
-            library('antlr-runtime', 'org.antlr', 'antlr4-runtime').versionRef(antlr)
-
             library('junit-api', 'org.junit.jupiter', 'junit-jupiter-api').versionRef(jupiter)
             library('junit-engine', 'org.junit.jupiter', 'junit-jupiter-engine').versionRef(jupiter)
             library('powermock', 'org.powermock:powermock-core:2.0.9')
@@ -39,5 +31,4 @@ dependencyResolutionManagement {
 
 rootProject.name = 'AccessTransformers'
 include ':cli'
-include ':modlauncher'
 include ':parser'

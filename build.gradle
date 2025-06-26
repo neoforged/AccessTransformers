@@ -84,11 +84,7 @@ dependencies {
     testImplementation(libs.junit.api)
     testImplementation(libs.powermock)
     testImplementation(libs.assert4j)
-    testImplementation(libs.bsl)
-    testImplementation(libs.sjh)
     testImplementation(libs.gson)
-    testImplementation(project(':modlauncher'))
-    testImplementation(libs.jopt5)
     testImplementation(libs.bundles.log4j)
     testRuntimeOnly(libs.junit.engine)
 
@@ -97,22 +93,8 @@ dependencies {
     api(project(':parser'))
 }
 
-// Build the module path manually because Gradle won't do it for non-modular projects.
-// Feel free to replace by a better way, I just wanted the tests to run.
-import java.util.stream.Collectors
-def buildModulePath() {
-    project.configurations.testRuntimeClasspath.resolve()*.toString().stream().filter {
-        it.contains('asm') || it.contains('modlauncher') || it.contains('bootstraplauncher') || it.contains('securejarhandler')
-    }.collect(Collectors.joining(File.pathSeparator))
-}
-
 test {
     useJUnitPlatform()
-    forkEvery 1
-    jvmArgs(
-            '--add-opens', 'java.base/java.lang.invoke=cpw.mods.securejarhandler',
-            '-p', buildModulePath()
-    )
 }
 
 test.dependsOn(testJarsClasses)
