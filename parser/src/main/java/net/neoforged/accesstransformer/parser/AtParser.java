@@ -20,7 +20,7 @@ public final class AtParser {
                 builder.setLength(0);
                 for (char c : line.toCharArray()) {
                     if (Character.isWhitespace(c)) {
-                        if (!builder.isEmpty()) {
+                        if (builder.length() != 0) {
                             parts.add(builder.toString());
                         }
                         builder.setLength(0);
@@ -31,7 +31,7 @@ public final class AtParser {
                         builder.appendCodePoint(c);
                     }
                 }
-                if (!builder.isEmpty()) {
+                if (builder.length() != 0) {
                     parts.add(builder.toString());
                 }
                 if (parts.isEmpty()) {
@@ -103,13 +103,19 @@ public final class AtParser {
     }
 
     private static Transformation.Modifier parseModifier(String modifier, int line) {
-        return switch (modifier) {
-            case "public" -> Transformation.Modifier.PUBLIC;
-            case "private" -> Transformation.Modifier.PRIVATE;
-            case "protected" -> Transformation.Modifier.PROTECTED;
-            case "default" -> Transformation.Modifier.DEFAULT;
-            default -> throw new RuntimeException("Invalid modifier: " + modifier + " at line " + line);
-        };
+        // Java 8: switch statement instead of switch expression
+        switch (modifier) {
+            case "public":
+                return Transformation.Modifier.PUBLIC;
+            case "private":
+                return Transformation.Modifier.PRIVATE;
+            case "protected":
+                return Transformation.Modifier.PROTECTED;
+            case "default":
+                return Transformation.Modifier.DEFAULT;
+            default:
+                throw new RuntimeException("Invalid modifier: " + modifier + " at line " + line);
+        }
     }
 
     private static void locateInnerClassAts(String className, Transformation transformation, BiConsumer<Target, Transformation> consumer) {
@@ -173,10 +179,13 @@ public final class AtParser {
     }
 
     private static void validateIdentifier(String name, String sort, int index) {
-        if (!Character.isJavaIdentifierStart(name.charAt(0)) ||
-                name.chars().skip(1).anyMatch(c -> !Character.isJavaIdentifierPart(c))
-        ) {
+        if (!Character.isJavaIdentifierStart(name.charAt(0))) {
             throw new RuntimeException("Invalid " + sort + "name '" + name + "' at line " + index);
+        }
+        for (int i = 1; i < name.length(); i++) {
+            if (!Character.isJavaIdentifierPart(name.charAt(i))) {
+                throw new RuntimeException("Invalid " + sort + "name '" + name + "' at line " + index);
+            }
         }
     }
 }
