@@ -5,6 +5,7 @@ import net.neoforged.accesstransformer.parser.TargetType;
 import net.neoforged.accesstransformer.parser.Transformation;
 import org.objectweb.asm.Opcodes;
 
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Set;
 
@@ -82,10 +83,7 @@ public abstract class AccessTransformer<T> {
     }
 
     static {
-        // Arrays.stream(Transformation.Modifier.values()).forEach(m->lookup[firstBit(accFlag(m))] = m);
-        for (Transformation.Modifier m : Transformation.Modifier.values()) {
-            lookup[firstBit(accFlag(m))] = m;
-        }
+        Arrays.stream(Transformation.Modifier.values()).forEach(m->lookup[firstBit(accFlag(m))] = m);
     }
 
     private static int firstBit(int flags) {
