@@ -10,20 +10,31 @@ allprojects { project ->
     group 'net.neoforged.accesstransformers'
 
     version = gradleutils.version
-    gradleutils.setupSigning(project)
-    repositories {
-        mavenLocal()
-        mavenCentral()
-        maven {
-            name = 'neoforged'
-            url = 'https://maven.neoforged.net/releases/'
+
+    gradleutils {
+        version {
+            branches {
+                suffixBranch()
+            }
         }
     }
 
+    gradleutils.setupSigning(project)
+
     java {
-        modularity.inferModulePath = true
         withSourcesJar()
-        toolchain.languageVersion = JavaLanguageVersion.of(21)
+        toolchain.languageVersion = JavaLanguageVersion.of(8)
+    }
+
+    project.tasks.named('compileTestJava').configure {
+        javaCompiler = javaToolchains.compilerFor {
+            languageVersion = JavaLanguageVersion.of(21)
+        }
+    }
+    test {
+        javaLauncher = javaToolchains.launcherFor {
+            languageVersion = JavaLanguageVersion.of(21)
+        }
     }
 }
 
@@ -79,7 +90,6 @@ dependencies {
 
     testCompileOnly(libs.annotations)
 
-    api(libs.slf4j)
     api(libs.bundles.asm)
     api(project(':parser'))
 }

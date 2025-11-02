@@ -61,7 +61,8 @@ public final class Transformation {
     @Override
     public boolean equals(Object object) {
         if (this == object) return true;
-        if (!(object instanceof Transformation transformation)) return false;
+        if (!(object instanceof Transformation)) return false;
+        Transformation transformation = (Transformation) object;
         return finalState == transformation.finalState && modifier == transformation.modifier;
     }
 

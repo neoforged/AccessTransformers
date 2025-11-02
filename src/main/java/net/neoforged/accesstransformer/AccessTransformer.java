@@ -4,18 +4,12 @@ import net.neoforged.accesstransformer.parser.Target;
 import net.neoforged.accesstransformer.parser.TargetType;
 import net.neoforged.accesstransformer.parser.Transformation;
 import org.objectweb.asm.Opcodes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Marker;
-import org.slf4j.MarkerFactory;
 
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Set;
 
 public abstract class AccessTransformer<T> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AccessTransformer.class);
-    private static final Marker AXFORM_MARKER = MarkerFactory.getMarker("AXFORM");
     private final Transformation transformation;
     private final Target target;
 
@@ -25,14 +19,21 @@ public abstract class AccessTransformer<T> {
     }
 
     public static AccessTransformer<?> of(Target target, Transformation transformation) {
-        return switch (target) {
-            case Target.MethodTarget methodTarget -> new MethodAccessTransformer(methodTarget, transformation);
-            case Target.FieldTarget fieldTarget -> new FieldAccessTransformer(fieldTarget, transformation);
-            case Target.ClassTarget classTarget -> new ClassAccessTransformer(classTarget, transformation);
-            case Target.InnerClassTarget innerClassTarget -> new InnerClassAccessTransformer(innerClassTarget, transformation);
-            case Target.WildcardFieldTarget wildcardFieldTarget -> new WildcardAccessTransformer(wildcardFieldTarget, transformation);
-            case Target.WildcardMethodTarget wildcardMethodTarget -> new WildcardAccessTransformer(wildcardMethodTarget, transformation);
-        };
+        if (target instanceof Target.MethodTarget) {
+            return new MethodAccessTransformer((Target.MethodTarget) target, transformation);
+        } else if (target instanceof Target.FieldTarget) {
+            return new FieldAccessTransformer((Target.FieldTarget) target, transformation);
+        } else if (target instanceof Target.ClassTarget) {
+            return new ClassAccessTransformer((Target.ClassTarget) target, transformation);
+        } else if (target instanceof Target.InnerClassTarget) {
+            return new InnerClassAccessTransformer((Target.InnerClassTarget) target, transformation);
+        } else if (target instanceof Target.WildcardFieldTarget) {
+            return new WildcardAccessTransformer((Target.WildcardFieldTarget) target, transformation);
+        } else if (target instanceof Target.WildcardMethodTarget) {
+            return new WildcardAccessTransformer((Target.WildcardMethodTarget) target, transformation);
+        } else {
+            throw new IllegalArgumentException("Unknown target type: " + target.getClass());
+        }
     }
 
     public TargetType getType() {
@@ -54,7 +55,8 @@ public abstract class AccessTransformer<T> {
 
     @Override
     public boolean equals(final Object obj) {
-        if (!(obj instanceof AccessTransformer<?> at2)) return false;
+        if (!(obj instanceof AccessTransformer)) return false;
+        AccessTransformer<?> at2 = (AccessTransformer<?>) obj;
         return Objects.equals(target, at2.target) &&
                Objects.equals(transformation, at2.transformation);
     }
@@ -66,12 +68,18 @@ public abstract class AccessTransformer<T> {
 
     private static final Transformation.Modifier[] lookup = new Transformation.Modifier[4];
     private static int accFlag(Transformation.Modifier modifier) {
-        return switch (modifier) {
-            case PUBLIC -> Opcodes.ACC_PUBLIC;
-            case PROTECTED -> Opcodes.ACC_PROTECTED;
-            case PRIVATE -> Opcodes.ACC_PRIVATE;
-            case DEFAULT -> 0;
-        };
+        switch (modifier) {
+            case PUBLIC:
+                return Opcodes.ACC_PUBLIC;
+            case PROTECTED:
+                return Opcodes.ACC_PROTECTED;
+            case PRIVATE:
+                return Opcodes.ACC_PRIVATE;
+            case DEFAULT:
+                return 0;
+            default:
+                throw new IllegalArgumentException("Unknown modifier: " + modifier);
+        }
     }
 
     static {
@@ -88,11 +96,18 @@ public abstract class AccessTransformer<T> {
     }
 
     private static int mergeWith(int access, Transformation.FinalState finalState) {
-        return switch (finalState) {
-            case LEAVE, CONFLICT -> access;
-            case MAKEFINAL -> access | Opcodes.ACC_FINAL;
-            case REMOVEFINAL -> access & ~Opcodes.ACC_FINAL;
-        };
+        switch (finalState) {
+            case LEAVE:
+                return access;
+            case CONFLICT:
+                return access;
+            case MAKEFINAL:
+                return access | Opcodes.ACC_FINAL;
+            case REMOVEFINAL:
+                return access & ~Opcodes.ACC_FINAL;
+            default:
+                throw new IllegalArgumentException("Unknown final state: " + finalState);
+        }
     }
 
     public static int mergeWith(int access, Transformation.Modifier modifier, Transformation.FinalState finalState) {
@@ -104,7 +119,6 @@ public abstract class AccessTransformer<T> {
 
     @SuppressWarnings("unchecked")
     public static <T> void applyTransform(final AccessTransformer<?> accessTransformer, final T node, final Set<String> privateChanged) {
-        LOGGER.debug(AXFORM_MARKER,"Transforming {} to access {} and {}", accessTransformer, accessTransformer.transformation.modifier(), accessTransformer.transformation.finalState());
         ((AccessTransformer<T>) accessTransformer).apply(node, privateChanged);
     }
 }

@@ -1,7 +1,0 @@
-java {
-    toolchain.languageVersion = JavaLanguageVersion.of(17)
-}
-
-dependencies {
-    api(libs.slf4j)
-}
