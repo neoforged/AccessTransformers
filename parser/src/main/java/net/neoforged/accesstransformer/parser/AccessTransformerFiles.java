@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 public class AccessTransformerFiles {
     private final Map<Target, Transformation> accessTransformers = new HashMap<>();
@@ -45,31 +46,22 @@ public class AccessTransformerFiles {
         }
         this.accessTransformers.clear();
         this.accessTransformers.putAll(localATCopy);
-
-        Set<String> targets = new java.util.HashSet<String>();
-        for (Target t : this.accessTransformers.keySet()) {
-            targets.add(t.className());
-        }
-        this.targetedClassCache = targets;
+        this.targetedClassCache = this.accessTransformers.keySet().stream().map(Target::className).collect(Collectors.toSet());
     }
 
     private BiConsumer<Target, Transformation> mergeAccessTransformers(final Map<Target, Transformation> accessTransformers) {
         return (k, v) -> {
-            if (accessTransformers.containsKey(k)) {
-                accessTransformers.put(k, accessTransformers.get(k).mergeStates(v));
-            } else {
-                accessTransformers.put(k, v);
-            }
+            accessTransformers.merge(k, v, Transformation::mergeStates);
         };
     }
 
     private Map<Target, Transformation> invalidTransformers(final HashMap<Target, Transformation> accessTransformers) {
         HashMap<Target, Transformation> invalid = new HashMap<>();
-        for (Map.Entry<Target, Transformation> entry : accessTransformers.entrySet()) {
-            if (!entry.getValue().isValid()) {
-                invalid.put(entry.getKey(), entry.getValue());
+        accessTransformers.forEach((target, transformation) -> {
+            if (!transformation.isValid()) {
+                invalid.put(target, transformation);
             }
-        }
+        });
         return invalid;
     }
 
