@@ -82,11 +82,9 @@ public final class AtParser {
                     } else if (member.equals("*()")) {
                         target = new Target.WildcardMethodTarget(className);
                     } else if (member.contains("(")) {
-                        String name = member.substring(0, member.indexOf('('));
-                        // For some reason old forge ATs let you use descriptors with dots instead of slashes
-                        // We replicate this behavior here
-                        String desc = member.substring(member.indexOf('('))
-                                .replace('.', '/');
+                        var openingIndex = member.indexOf('(');
+                        String name = member.substring(0, openingIndex);
+                        String desc = member.substring(openingIndex);
                         validateMethodDescriptor(desc, reader.getLineNumber());
                         if (!name.equals("<init>")) {
                             validateIdentifier(name, "method", reader.getLineNumber());
