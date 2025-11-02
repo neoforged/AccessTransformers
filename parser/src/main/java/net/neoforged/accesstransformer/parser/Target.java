@@ -5,6 +5,8 @@ import java.util.Objects;
 public abstract class Target {
     public abstract String className();
 
+    Target() {}
+
     /**
      * Checks whether this target matches the given target description.
      *
