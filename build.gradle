@@ -25,6 +25,17 @@ allprojects { project ->
         withSourcesJar()
         toolchain.languageVersion = JavaLanguageVersion.of(8)
     }
+
+    project.tasks.named('compileTestJava').configure {
+        javaCompiler = javaToolchains.compilerFor {
+            languageVersion = JavaLanguageVersion.of(21)
+        }
+    }
+    test {
+        javaLauncher = javaToolchains.launcherFor {
+            languageVersion = JavaLanguageVersion.of(21)
+        }
+    }
 }
 
 subprojects { proj ->
