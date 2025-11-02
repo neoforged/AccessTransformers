@@ -3,9 +3,9 @@ package net.neoforged.accesstransformer.parser;
 import java.util.Objects;
 
 public abstract class Target {
-    public abstract String className();
-
     Target() {}
+
+    public abstract String className();
 
     /**
      * Checks whether this target matches the given target description.
