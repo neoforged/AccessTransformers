@@ -103,7 +103,6 @@ public final class AtParser {
     }
 
     private static Transformation.Modifier parseModifier(String modifier, int line) {
-        // Java 8: switch statement instead of switch expression
         switch (modifier) {
             case "public":
                 return Transformation.Modifier.PUBLIC;
