@@ -11,26 +11,26 @@ dependencyResolutionManagement {
             plugin('gradleutils', 'net.neoforged.gradleutils').version('5.0.0')
             plugin('shadow', 'com.github.johnrengelman.shadow').version('8.1.1')
 
-            final log4j = version 'log4j', '2.12.4'
-            final asm = version 'asm', '9.7'
-            final jupiter = version 'jupiter', '5.7.2'
+            version('log4j', '2.12.4')
+            version('asm', '9.7')
+            version('jupiter', '5.7.2')
 
             library('gson', 'com.google.code.gson:gson:2.8.9')
             library('slf4j', 'org.slf4j:slf4j-api:2.0.9')
             library('jopt', 'net.sf.jopt-simple:jopt-simple:6.0-alpha-3')
             library('assert4j', 'org.assertj:assertj-core:3.25.1')
 
-            library('log4j-api', 'org.apache.logging.log4j', 'log4j-api').versionRef(log4j)
-            library('log4j-core', 'org.apache.logging.log4j', 'log4j-core').versionRef(log4j)
+            library('log4j-api', 'org.apache.logging.log4j', 'log4j-api').versionRef('log4j')
+            library('log4j-core', 'org.apache.logging.log4j', 'log4j-core').versionRef('log4j')
             bundle('log4j', ['log4j-api', 'log4j-core'])
 
-            library('asm-core', 'org.ow2.asm', 'asm').versionRef(asm)
-            library('asm-tree', 'org.ow2.asm', 'asm-tree').versionRef(asm)
-            library('asm-commons', 'org.ow2.asm', 'asm-commons').versionRef(asm)
+            library('asm-core', 'org.ow2.asm', 'asm').versionRef('asm')
+            library('asm-tree', 'org.ow2.asm', 'asm-tree').versionRef('asm')
+            library('asm-commons', 'org.ow2.asm', 'asm-commons').versionRef('asm')
             bundle('asm', ['asm-core', 'asm-tree', 'asm-commons'])
 
-            library('junit-api', 'org.junit.jupiter', 'junit-jupiter-api').versionRef(jupiter)
-            library('junit-engine', 'org.junit.jupiter', 'junit-jupiter-engine').versionRef(jupiter)
+            library('junit-api', 'org.junit.jupiter', 'junit-jupiter-api').versionRef('jupiter')
+            library('junit-engine', 'org.junit.jupiter', 'junit-jupiter-engine').versionRef('jupiter')
             library('powermock', 'org.powermock:powermock-core:2.0.9')
             library('annotations', 'org.jetbrains:annotations:26.0.2')
         }
