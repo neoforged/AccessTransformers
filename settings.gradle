@@ -12,7 +12,7 @@ dependencyResolutionManagement {
             plugin('shadow', 'com.github.johnrengelman.shadow').version('8.1.1')
 
             version('log4j', '2.12.4')
-            version('asm', '9.7')
+            version('asm', '9.9.1')
             version('jupiter', '5.7.2')
 
             library('gson', 'com.google.code.gson:gson:2.8.9')
